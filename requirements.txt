@@ -1,0 +1,10 @@
+opencv-python
+pandas
+plotly
+dash
+dash-bootstrap-components
+dash-mantine-components
+jupyterlab
+ipywidgets
+matplotlib
+pytesseract
