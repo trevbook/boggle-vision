@@ -8,3 +8,7 @@ jupyterlab
 ipywidgets
 matplotlib
 pytesseract
+scikit-learn
+tqdm
+easyocr
+
