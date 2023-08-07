@@ -210,7 +210,7 @@ def detect_boggle_board_contour(
 
     # Convert the image to greyscale
     greyscale_img = convert_to_greyscale(input_img)
-    
+
     # Apply some Gaussian blurring to the image
     # greyscale_img = cv2.GaussianBlur(greyscale_img, (5, 5), 0)
 
@@ -218,8 +218,6 @@ def detect_boggle_board_contour(
     thresholded_img = apply_binary_thresholding(
         greyscale_img, threshold=binary_threshold_value
     )
-    
-    
 
     # Detect the contours in the image
     contours, hierarchy = detect_contours(thresholded_img)
@@ -331,6 +329,70 @@ def draw_contours(img, contours, color=(0, 255, 0), thickness=3, return_img=Fals
     plt.show()
 
 
+def order_points(pts):
+    """
+    This function takes a list of four points and returns them in ordered manner
+    (top-left, top-right, bottom-right, bottom-left)
+    """
+    # Sort the points according to their x-coordinates
+    x_sorted = pts[np.argsort(pts[:, 0]), :]
+
+    # Get the left-most and right-most points
+    left_most = x_sorted[:2, :]
+    right_most = x_sorted[2:, :]
+
+    # Within the left-most points, sort them by their y-coordinate so we get the top-left and bottom-left points
+    left_most = left_most[np.argsort(left_most[:, 1]), :]
+    (tl, bl) = left_most
+
+    # Now, for the right-most points, we already know that our top-right point will have the smaller y-value
+    right_most = right_most[np.argsort(right_most[:, 1]), :]
+    (tr, br) = right_most
+
+    # Return the ordered coordinates
+    return np.array([tl, tr, br, bl], dtype="float32")
+
+
+def center_letter_image(img):
+    """
+    This method will take a grayscale image with a white object (letter)
+    on a black background and return a new image where the white object is centered.
+    """
+
+    # Find all white (also shades of whites)
+    # pixels and get their coordinates
+    img_height, img_width = img.shape
+    y_coords, x_coords = np.where(img > 1)
+
+    # If the image is all black, just return the original image
+    if len(x_coords) == 0 or len(y_coords) == 0:
+        return img
+
+    # Get the bounding rectangle
+    x_min, y_min = np.min(x_coords), np.min(y_coords)
+    x_max, y_max = np.max(x_coords), np.max(y_coords)
+
+    # Crop the image to the bounding rectangle
+    cropped_img = img[y_min:y_max, x_min:x_max]
+
+    # Get the size of the cropped image
+    cropped_img_height, cropped_img_width = cropped_img.shape
+
+    # Create a new image with the same size as the original image
+    centered_img = np.zeros_like(img)
+
+    # Get the starting coordinates to center the cropped image
+    start_x = (img_width - cropped_img_width) // 2
+    start_y = (img_height - cropped_img_height) // 2
+
+    # Paste the cropped image into the center of the new image
+    centered_img[
+        start_y : start_y + cropped_img_height, start_x : start_x + cropped_img_width
+    ] = cropped_img
+
+    return centered_img
+
+
 def warp_perspective_to_top_down(img, contour):
     """
     This method will take an image and a contour and warp the image to a top-down view.
@@ -340,23 +402,11 @@ def warp_perspective_to_top_down(img, contour):
     # Determine the corner points of the board
     corner_points = [contour_corner[0].tolist() for contour_corner in contour]
 
+    # Order the points accordingly
+    corner_points = order_points(np.array(corner_points))
+
     # Unpack the corner points
     pt_A, pt_B, pt_C, pt_D = corner_points
-
-    # Now, we're going to sort the points so that point A is the top-left point,
-    # point B is the top-right point, point C is the bottom-left point, and point D
-    # is the bottom-right point.
-
-    # Sort the points by their y-coordinate
-    corner_points = sorted(corner_points, key=lambda x: x[1])
-
-    # Now, separate the points into the top and bottom points
-    top_corner_points = corner_points[:2]
-    bottom_corner_points = corner_points[2:]
-
-    # Sort each of the top and bottom points by their x-coordinate
-    top_corner_points = sorted(top_corner_points, key=lambda x: x[0])
-    bottom_corner_points = sorted(bottom_corner_points, key=lambda x: x[0])
 
     # Use the L2 norm to calculate the width and height of the new image
     width_AD = np.sqrt(((pt_A[0] - pt_D[0]) ** 2) + ((pt_A[1] - pt_D[1]) ** 2))
@@ -365,6 +415,11 @@ def warp_perspective_to_top_down(img, contour):
     height_AB = np.sqrt(((pt_A[0] - pt_B[0]) ** 2) + ((pt_A[1] - pt_B[1]) ** 2))
     height_CD = np.sqrt(((pt_C[0] - pt_D[0]) ** 2) + ((pt_C[1] - pt_D[1]) ** 2))
     maxHeight = max(int(height_AB), int(height_CD))
+
+    # Determine whether the max width or max height is larger
+    largest = max(maxWidth, maxHeight)
+    maxWidth = largest
+    maxHeight = largest
 
     # Compute the perspective transform matrix
     input_pts = np.float32([pt_A, pt_B, pt_C, pt_D])
@@ -379,9 +434,9 @@ def warp_perspective_to_top_down(img, contour):
 
     # Rotate the image 90 degrees clockwise
     warped_image = cv2.rotate(warped_image, cv2.ROTATE_90_CLOCKWISE)
-
+    
     # Flip the image horizontally and return it
-    return warped_image
+    return cv2.flip(warped_image, 1)
 
 
 def resize_image(image, desired_height):
@@ -703,6 +758,7 @@ def extract_tile_images(
     binary_threshold_value=100,
     adaptive_threshold_kernel_size_relative=0.02,
     adaptive_threshold_C=5,
+    resize_size=50,
 ):
     """
     This method will extract images for each of the tiles specified
@@ -719,11 +775,11 @@ def extract_tile_images(
 
     # We're going to store each of the extracted images in this dictionary
     tile_idx_to_extracted_image = {}
-    
+
     # Determine a solid value for the adaptive threshold kernel size
-    mean_tile_area = tile_contours_df["contour"].apply(
-        lambda x: cv2.contourArea(x)
-    ).mean()
+    mean_tile_area = (
+        tile_contours_df["contour"].apply(lambda x: cv2.contourArea(x)).mean()
+    )
     optimal_kernel_size = int(mean_tile_area * adaptive_threshold_kernel_size_relative)
     if optimal_kernel_size % 2 == 0:
         optimal_kernel_size += 1
@@ -755,7 +811,9 @@ def extract_tile_images(
         )
 
         # Now, apply some binary thresholding to the image
-        thresholded_image = apply_binary_thresholding(thresholded_image, threshold=binary_threshold_value)
+        thresholded_image = apply_binary_thresholding(
+            thresholded_image, threshold=binary_threshold_value
+        )
 
         # Now, we're going to detect the contours from the warped image
         contours, hierarchy = detect_contours(
@@ -794,6 +852,10 @@ def extract_tile_images(
             min_contour_in_underline=min_contour_in_underline,
         )
 
+         
+        
+        
+
         # Filter out any level-1 contours that're too small. Make sure to
         # keep the underline contours, though
         hierarchy_df = (
@@ -812,7 +874,70 @@ def extract_tile_images(
             )
             .drop_duplicates(subset=["contour_idx"])
             .sort_values("contour_pct_of_image_area", ascending=False)
+        
+        
         )
+        
+        # If there *are* underline contours, we'll need to figure out which
+        # orientation they are in. We'll look at the midpoint of these contours
+        # in relation to the midpoint of the other contours.
+        proper_rotation = None
+        if underline_contours:
+            
+            print(f"\nDetected underline contours in tile {row.tile_sequence_idx}.")
+            
+            # Create a DataFrame without any of the underline contours
+            non_underline_contours_df = hierarchy_df[
+                ~hierarchy_df["contour_idx"].isin(underline_contours)
+            ].copy()
+            non_underline_mean_x = non_underline_contours_df["contour_midpoint_x"].mean()
+            non_underline_mean_y = non_underline_contours_df["contour_midpoint_y"].mean()
+            # non_underline_max_x = non_underline_contours_df["contour_midpoint_x"].max()
+            
+            # Determine the underline contours
+            underline_contours_df = hierarchy_df[
+                hierarchy_df["contour_idx"].isin(underline_contours)
+            ].copy()
+            underline_mean_x = underline_contours_df["contour_midpoint_x"].mean()
+            underline_mean_y = underline_contours_df["contour_midpoint_y"].mean()
+            # underline_max_x = underline_contours_df["contour_midpoint_x"].max()
+            
+            # Determine the range of the x-coordinates and y-coordinates of the underline contours
+            underline_contours_xrange = (
+                underline_contours_df["contour_midpoint_x"].max() - underline_contours_df["contour_midpoint_x"].min()
+            )
+            underline_contours_yrange = (
+                underline_contours_df["contour_midpoint_y"].max() - underline_contours_df["contour_midpoint_y"].min()
+            )
+            
+            # If the yrange is larger than the xrange, then the underlines are either on the left or right side of the tile
+            if underline_contours_yrange > underline_contours_xrange:
+                
+                # If the mean x-coordinate of the underline contours is less than the mean x-coordinate of the non-underline contours,
+                # then the underlines are on the left side of the tile
+                if underline_mean_x < non_underline_mean_x:
+                    proper_rotation = 270
+                
+                # Otherwise, the underlines are on the right side of the tile
+                else:
+                    proper_rotation = 90
+            
+            # Otherwise, the underlines are either on the top or bottom of the tile
+            else:
+                
+                # If the mean y-coordinate of the underline contours is less than the mean y-coordinate of the non-underline contours,
+                # then the underlines are on the top side of the tile
+                if underline_mean_y < non_underline_mean_y:
+                    proper_rotation = 180
+                
+                # Otherwise, the underlines are on the bottom side of the tile
+                else:
+                    proper_rotation = 0
+            
+            print(f"proper rotation: {proper_rotation}")
+           
+        
+        
 
         if len(hierarchy_df) == 0:
             raise Exception("No contours were found.")
@@ -858,8 +983,16 @@ def extract_tile_images(
             return_img=True,
         )
 
+        # Center the letter image
+        centered_letter_img = center_letter_image(
+            cv2.cvtColor(mask_with_level_2, cv2.COLOR_BGR2GRAY)
+        )
+
+        # Resize the centered letter image
+        centered_letter_img = resize_image(centered_letter_img, resize_size)
+
         # Store the extracted image
-        tile_idx_to_extracted_image[row.tile_sequence_idx] = cv2.flip(mask_with_level_2, 1)
+        tile_idx_to_extracted_image[row.tile_sequence_idx] = centered_letter_img
 
     # Return the tile_idx_to_extracted_image dictionary
     return tile_idx_to_extracted_image
