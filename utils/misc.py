@@ -10,7 +10,7 @@ import math
 from matplotlib import pyplot as plt
 import numpy as np
 from statistics import mode
-import utils
+import old_utils
 import cv2
 import pytesseract
 from PIL import Image
@@ -435,7 +435,7 @@ def aggregate_prediction_results(result_df, min_prediction_confidence=0.75):
 
     # Only show the letters that're in the allowed Boggle set
     aggregated_result_df = aggregated_result_df[
-        aggregated_result_df["text"].isin(utils.allowed_boggle_tiles)
+        aggregated_result_df["text"].isin(old_utils.allowed_boggle_tiles)
     ]
 
     # If the length of the DataFrame is 0, then return None
