@@ -21,6 +21,7 @@ import pytesseract
 from PIL import Image
 from tqdm import tqdm
 from concurrent.futures import ThreadPoolExecutor
+import utils.settings as settings
 
 
 # =================================================
@@ -434,7 +435,7 @@ def warp_perspective_to_top_down(img, contour):
 
     # Rotate the image 90 degrees clockwise
     warped_image = cv2.rotate(warped_image, cv2.ROTATE_90_CLOCKWISE)
-    
+
     # Flip the image horizontally and return it
     return cv2.flip(warped_image, 1)
 
@@ -485,7 +486,6 @@ def detect_tile_contours(
     It will return a DataFrame containing the contours of the tiles, as well as the
     sequence of the tiles.
     """
-    pass
 
     # Calculate the area of the image
     input_board_image_area = (
@@ -784,6 +784,10 @@ def extract_tile_images(
     if optimal_kernel_size % 2 == 0:
         optimal_kernel_size += 1
 
+    # We're going to keep a dict of the tile contours that contain
+    # special properties
+    special_tile_contours = {"rotate_fixed": {}, "is_block": [], "is_i": []}
+
     # Iterate through each of the tile contours
     for idx, row in enumerate(list(tile_contours_df.itertuples())):
         # First, we're going to warp the image so that we're looking
@@ -852,48 +856,41 @@ def extract_tile_images(
             min_contour_in_underline=min_contour_in_underline,
         )
 
-         
-        
-        
-
         # Filter out any level-1 contours that're too small. Make sure to
         # keep the underline contours, though
         hierarchy_df = (
             pd.concat(
                 [
-                    hierarchy_df.query(
-                        "hierarchy_level > 1 and contour_pct_of_image_area > 0"
-                    ),
+                    hierarchy_df.query("hierarchy_level > 1"),
                     hierarchy_df.query(
                         "hierarchy_level == 1 and contour_pct_of_image_area >= @min_contour_pct_of_total_area"
                     ),
-                    original_hierarchy_df[
-                        original_hierarchy_df["contour_idx"].isin(underline_contours)
-                    ],
+                    # original_hierarchy_df[
+                    #     original_hierarchy_df["contour_idx"].isin(underline_contours)
+                    # ],
                 ]
             )
             .drop_duplicates(subset=["contour_idx"])
             .sort_values("contour_pct_of_image_area", ascending=False)
-        
-        
         )
-        
+
         # If there *are* underline contours, we'll need to figure out which
         # orientation they are in. We'll look at the midpoint of these contours
         # in relation to the midpoint of the other contours.
         proper_rotation = None
         if underline_contours:
-            
-            print(f"\nDetected underline contours in tile {row.tile_sequence_idx}.")
-            
             # Create a DataFrame without any of the underline contours
             non_underline_contours_df = hierarchy_df[
                 ~hierarchy_df["contour_idx"].isin(underline_contours)
             ].copy()
-            non_underline_mean_x = non_underline_contours_df["contour_midpoint_x"].mean()
-            non_underline_mean_y = non_underline_contours_df["contour_midpoint_y"].mean()
+            non_underline_mean_x = non_underline_contours_df[
+                "contour_midpoint_x"
+            ].mean()
+            non_underline_mean_y = non_underline_contours_df[
+                "contour_midpoint_y"
+            ].mean()
             # non_underline_max_x = non_underline_contours_df["contour_midpoint_x"].max()
-            
+
             # Determine the underline contours
             underline_contours_df = hierarchy_df[
                 hierarchy_df["contour_idx"].isin(underline_contours)
@@ -901,43 +898,42 @@ def extract_tile_images(
             underline_mean_x = underline_contours_df["contour_midpoint_x"].mean()
             underline_mean_y = underline_contours_df["contour_midpoint_y"].mean()
             # underline_max_x = underline_contours_df["contour_midpoint_x"].max()
-            
+
             # Determine the range of the x-coordinates and y-coordinates of the underline contours
             underline_contours_xrange = (
-                underline_contours_df["contour_midpoint_x"].max() - underline_contours_df["contour_midpoint_x"].min()
+                underline_contours_df["contour_midpoint_x"].max()
+                - underline_contours_df["contour_midpoint_x"].min()
             )
             underline_contours_yrange = (
-                underline_contours_df["contour_midpoint_y"].max() - underline_contours_df["contour_midpoint_y"].min()
+                underline_contours_df["contour_midpoint_y"].max()
+                - underline_contours_df["contour_midpoint_y"].min()
             )
-            
+
             # If the yrange is larger than the xrange, then the underlines are either on the left or right side of the tile
             if underline_contours_yrange > underline_contours_xrange:
-                
                 # If the mean x-coordinate of the underline contours is less than the mean x-coordinate of the non-underline contours,
                 # then the underlines are on the left side of the tile
                 if underline_mean_x < non_underline_mean_x:
                     proper_rotation = 270
-                
+
                 # Otherwise, the underlines are on the right side of the tile
                 else:
                     proper_rotation = 90
-            
+
             # Otherwise, the underlines are either on the top or bottom of the tile
             else:
-                
                 # If the mean y-coordinate of the underline contours is less than the mean y-coordinate of the non-underline contours,
                 # then the underlines are on the top side of the tile
                 if underline_mean_y < non_underline_mean_y:
                     proper_rotation = 180
-                
+
                 # Otherwise, the underlines are on the bottom side of the tile
                 else:
                     proper_rotation = 0
-            
-            print(f"proper rotation: {proper_rotation}")
-           
-        
-        
+
+            special_tile_contours["rotate_fixed"][
+                row.tile_sequence_idx
+            ] = proper_rotation
 
         if len(hierarchy_df) == 0:
             raise Exception("No contours were found.")
@@ -951,10 +947,34 @@ def extract_tile_images(
             len(largest_level_1_contour_polygon_approx) == 4
         )
 
-        # If the largest level-1 contour is a rectangle, then we're going to
-        # remove any level-2 contours.
+        # If the largest level 1 contour is a rectangle, we're going to determine
+        # if it's more of a square or a rectangle
         if largest_level_1_contour_is_rectangle:
-            hierarchy_df = hierarchy_df.query("hierarchy_level < 2")
+            largest_level_1_contour_polygon_approx = (
+                largest_level_1_contour_polygon_approx.reshape(-1, 2)
+            )
+
+            # Calculate the width and height of the largest level 1 contour
+            largest_level_1_contour_width = (
+                largest_level_1_contour_polygon_approx[:, 0].max()
+                - largest_level_1_contour_polygon_approx[:, 0].min()
+            )
+            largest_level_1_contour_height = (
+                largest_level_1_contour_polygon_approx[:, 1].max()
+                - largest_level_1_contour_polygon_approx[:, 1].min()
+            )
+
+            # If the width and height are within 10% of each other, then we're going to
+            # assume that it's a square
+            diff = (
+                abs(largest_level_1_contour_width - largest_level_1_contour_height)
+                / largest_level_1_contour_width
+            )
+
+            if diff <= 0.1:
+                special_tile_contours["is_block"].append(row.tile_sequence_idx)
+            else:
+                special_tile_contours["is_i"].append(row.tile_sequence_idx)
 
         # We're going to create a new image that only contains the contours
         mask = np.zeros_like(top_down_tile_image)
@@ -964,7 +984,9 @@ def extract_tile_images(
                 contours=[
                     contours[idx]
                     for idx in list(
-                        hierarchy_df.query("hierarchy_level == 1").contour_idx
+                        hierarchy_df.query(
+                            "hierarchy_level == 1 and contour_idx not in @underline_contours"
+                        ).contour_idx
                     )
                 ],
                 color=(255, 255, 255),
@@ -995,7 +1017,7 @@ def extract_tile_images(
         tile_idx_to_extracted_image[row.tile_sequence_idx] = centered_letter_img
 
     # Return the tile_idx_to_extracted_image dictionary
-    return tile_idx_to_extracted_image
+    return tile_idx_to_extracted_image, special_tile_contours
 
 
 def display_images_in_grid(images, grid_size=6, convert_to_rgb=True):
@@ -1020,3 +1042,458 @@ def display_images_in_grid(images, grid_size=6, convert_to_rgb=True):
             axs[i, j].axis("off")  # Hide axis
 
     plt.show()
+
+
+def process_tile_image_tesseract(cur_tile_img, rotation_angles=[0, 90, 180, 270]):
+    """
+    This method will process a single tile image and return some information
+    about the predicted character for that tile. This method will use
+    Tesseract as the character recognition engine.
+    """
+
+    # Invert the image so that we're working on a white background
+    cur_tile_img = cv2.bitwise_not(cur_tile_img)
+
+    # Convert the image to a PIL image
+    cur_tile_pil_img = Image.fromarray(cur_tile_img)
+
+    # Parallelize the processing of the tile image
+    futures = {}
+    with ThreadPoolExecutor(max_workers=8) as executor:
+        for rotation_angle in rotation_angles:
+            # Submit a future to the executor
+            futures[rotation_angle] = executor.submit(
+                pytesseract.image_to_data,
+                cur_tile_pil_img.rotate(rotation_angle),
+                output_type="data.frame",
+                config="--psm 10 --oem 2 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+            )
+
+        # Now, we need to collect the results from the futures
+        results = {}
+        for rotation_angle, future in futures.items():
+            results[rotation_angle] = future.result()
+
+    # Now that we've collected the results, we'll need to return some information about the
+    # predicted characters for each rotation.
+    dfs_to_concat = []
+    for rotation_angle, df in results.items():
+        df["rotation_angle"] = rotation_angle
+        dfs_to_concat.append(df)
+    result_df = pd.concat(dfs_to_concat)
+
+    # Drop rows where the text is empty
+    result_df = result_df.dropna(subset=["text"])
+
+    # Sort by the confidence score
+    result_df = result_df.sort_values(by="conf", ascending=False)
+
+    # Only include the relevant columns
+    result_df = result_df[["text", "conf", "rotation_angle"]]
+
+    # Add a column indicating that we'd used Tesseract
+    result_df["method"] = "tesseract"
+
+    # Divide the confidence score by 100
+    result_df["conf"] = result_df["conf"] / 100
+
+    # Return the DataFrame
+    return result_df
+
+
+def thinning(img):
+    """
+    This method will perform thinning on a binary image. I copied this
+    from a ChatGPT conversation: https://chat.openai.com/share/dc6db0ee-6445-4501-a834-7c3c89697bba
+    """
+
+    # Convert the image to greyscale
+    # img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    # Get the cross-shaped structuring element
+    element = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+
+    # Initialize the thinning image to the max (255)
+    thin = np.zeros(img.shape, dtype="uint8")
+
+    # Loop until no more thinning is possible
+    iter_ct = 0
+    while cv2.countNonZero(img) != 0 and iter_ct < 10:
+        # Erode the image
+        eroded = cv2.erode(img, element)
+
+        # Open the image
+        opened = cv2.dilate(eroded, element)
+
+        # Subtract the opened image from the original image
+        temp = cv2.subtract(img, opened)
+
+        # Erode the image, but do not open (dilate) it again
+        eroded = cv2.erode(img, element)
+
+        # Store the thinned image
+        thin = cv2.bitwise_or(thin, temp)
+
+        # Update the image to the eroded image
+        img = eroded.copy()
+
+        # Add to the iteration count
+        iter_ct += 1
+
+    return thin
+
+
+def process_tile_image_easyocr(cur_tile_img, rotation_angles, reader=None):
+    """
+    This method will process a single tile image and return some information
+    about the predicted character for that tile. This method uses EasyOCR as
+    the character recognition engine.
+    """
+
+    # If the reader is None, we're going to create a new reader
+    if reader is None:
+        raise Exception("You must specify an EasyOCR reader.")
+
+    # Convert the image to a PIL image
+    cur_tile_pil_img = Image.fromarray(cur_tile_img)
+
+    # Parallelize the processing of the tile image
+    futures = {}
+    with ThreadPoolExecutor(max_workers=8) as executor:
+        for rotation_angle in rotation_angles:
+            # Submit a future to the executor
+            futures[rotation_angle] = executor.submit(
+                reader.readtext,
+                np.array(cur_tile_pil_img.rotate(rotation_angle)),
+                min_size=1,
+                text_threshold=0.1,
+            )
+
+        # Now, we need to collect the results from the futures
+        results = {}
+        for rotation_angle, future in futures.items():
+            results[rotation_angle] = future.result()
+
+    # Now, we're going to create a DataFrame out of these results
+    result_df_records = []
+    for rotation_angle, easyocr_results in results.items():
+        # Extract the results from the first result
+        if len(easyocr_results) == 0:
+            boundary_box = None
+            text = None
+            confidence = None
+        else:
+            res = easyocr_results[0]
+            if len(res) == 0:
+                boundary_box = None
+                text = None
+                confidence = None
+            else:
+                boundary_box, text, confidence = res
+
+        # Create a record for this result
+        result_df_records.append(
+            {
+                "text": text,
+                "conf": confidence,
+                "rotation_angle": rotation_angle,
+                "method": "easyocr",
+            }
+        )
+
+    # Finally, make a DataFrame out of the records
+    return pd.DataFrame(result_df_records)
+
+
+def aggregate_prediction_results(result_df, min_prediction_confidence=0.75):
+    """
+    This method will aggregate the prediction results from the
+    multi_engine_tile_processing method. It will return two things:
+
+    1. The predicted tile character
+    2. The necessary rotation to make the tile upright
+
+    If the tile is not a character, it will return None for both values
+    """
+
+    # If the result_df is just a string, then we're going to return that
+    # string (as well as a rotation angle of 0)
+    if isinstance(result_df, str):
+        return result_df, 0
+
+    # Aggregate the DataFrame
+    aggregated_result_df = (
+        result_df.query("conf >= @min_prediction_confidence")
+        .groupby("text")
+        .agg(
+            mean_conf=("conf", "mean"),
+            pred_ct=("conf", "count"),
+            angle_rotations=("rotation_angle", list),
+        )
+        .reset_index()
+    )
+
+    aggregated_result_df["weighted_conf"] = (
+        aggregated_result_df["mean_conf"] * aggregated_result_df["pred_ct"]
+    )
+
+    aggregated_result_df = aggregated_result_df.sort_values(
+        "weighted_conf", ascending=False
+    )
+
+    # Only show the letters that're in the allowed Boggle set
+    aggregated_result_df = aggregated_result_df[
+        aggregated_result_df["text"].isin(settings.allowed_boggle_tiles)
+    ]
+
+    # If the length of the DataFrame is 0, then return None
+    if len(aggregated_result_df) == 0:
+        return None, None
+
+    # Determine the most confident letter prediction
+    top_letter_prediction = aggregated_result_df.iloc[0].text
+
+    # Determine the most confident rotation angle for the top letter prediction
+    top_rotation_angle = (
+        result_df.query("text==@top_letter_prediction")
+        .groupby("rotation_angle")
+        .agg({"conf": "mean"})
+        .reset_index()
+        .sort_values("conf", ascending=False)
+        .iloc[0]
+        .rotation_angle
+    )
+
+    return top_letter_prediction, top_rotation_angle
+
+
+def ocr_one_tile(
+    tile_img,
+    tile_idx,
+    special_tile_info,
+    engines_to_run=["tesseract", "easyocr"],
+    skeletonize=False,
+    easyocr_reader=None,
+):
+    """
+    This method will perform optical character recognition on
+    one of the tiles. This method expects three inputs:
+
+    - `tile_img`: The image of the tile to perform OCR on
+    - `tile_idx`: The index of the tile in the board
+    - `special_tile_info`: A dictionary containing the special
+      tile information for the board. This is used to determine
+    """
+
+    # First, we're going to check whether or not the tile is a special tile
+    if tile_idx in special_tile_info["is_i"]:
+        return "I"
+    elif tile_idx in special_tile_info["is_block"]:
+        return "BLOCK"
+
+    # Determine the angles of rotation we'll use when trying to OCR this tile
+    rotation_angles = [0, 90, 180, 270]
+    if tile_idx in special_tile_info["rotate_fixed"]:
+        rotation_angles = [special_tile_info["rotate_fixed"][tile_idx]]
+
+    # If the user is interested in trying the skeletonized version of the image,
+    # skeletonize the image
+    if skeletonize:
+        skeletonized_img = thinning(tile_img)
+
+    # We're going to run each of these engines in parallel to speed up the process
+    futures = {}
+    with ThreadPoolExecutor(max_workers=8) as executor:
+        # Now, we're going to iterate through the different OCR engines
+        if "tesseract" in engines_to_run:
+            futures["original_tesseract"] = executor.submit(
+                process_tile_image_tesseract, tile_img, rotation_angles
+            )
+
+            # If the user is interested in trying the skeletonized version of the image,
+            # we'll run that as well
+            if skeletonize:
+                futures["skeletonized_tesseract"] = executor.submit(
+                    process_tile_image_tesseract, skeletonized_img, rotation_angles
+                )
+
+        # If the user is interested in trying the easyocr engine, we'll run that as well
+        if "easyocr" in engines_to_run:
+            futures["original_easyocr"] = executor.submit(
+                process_tile_image_easyocr, tile_img, rotation_angles, easyocr_reader
+            )
+
+            # Add the skeletonized OCR to the list of futures if the user is interested
+            if skeletonize:
+                futures["skeletonized_easyocr"] = executor.submit(
+                    process_tile_image_easyocr,
+                    skeletonized_img,
+                    rotation_angles,
+                    easyocr_reader,
+                )
+
+        # Now, we need to collect the results from the futures
+        results = {}
+        for rotation_angle, future in futures.items():
+            results[rotation_angle] = future.result()
+
+    # Now, collect all of the results
+    df_result_list = []
+    for key, future in futures.items():
+        img_type = key.split("_")[0]
+        df_result = future.result()
+        df_result["img_type"] = img_type
+        df_result_list.append(df_result)
+
+    # Concatenate the results into a single dataframe
+    return pd.concat(df_result_list)
+
+
+def ocr_all_tiles(
+    extracted_tile_img_dict,
+    special_tile_info,
+    engines_to_run=["tesseract", "easyocr"],
+    skeletonize=False,
+    easyocr_reader=None,
+):
+    """
+    This method will OCR all of the tiles. By passing in an `extracted_tile_img_dict` that is
+    keyed with the tile index and has the tile image as the value, we can OCR all of the tiles.
+
+    This method will return a DataFrame with information about the predicted letter and rotation.
+    """
+
+    # We're going to process each of the tiles in parallel
+    futures = {}
+    results = {}
+    with ThreadPoolExecutor(max_workers=8) as executor:
+        # Add futures for each tile to the dictionary
+        for tile_idx, tile_img in extracted_tile_img_dict.items():
+            futures[tile_idx] = executor.submit(
+                ocr_one_tile,
+                tile_img=tile_img,
+                tile_idx=tile_idx,
+                special_tile_info=special_tile_info,
+                engines_to_run=engines_to_run,
+                skeletonize=skeletonize,
+                easyocr_reader=easyocr_reader,
+            )
+
+        # Now, iterate through all of the futures and wait for them to complete
+        for tile_idx, future in list(futures.items()):
+            results[tile_idx] = aggregate_prediction_results(
+                future.result(), min_prediction_confidence=0.4
+            )
+
+    # Finally, we're going to make a DataFrame of all of the tile prediction results
+    result_df = pd.DataFrame(
+        [
+            {
+                "tile_idx": tile_idx,
+                "letter": result_list[0],
+                "rotation_angle": result_list[1],
+            }
+            for tile_idx, result_list in results.items()
+        ]
+    )
+
+    # Return the result_df
+    return result_df
+
+
+def parse_boggle_board(input_image, max_image_height=1500, easyocr_reader=None):
+    """
+    This method will run through each of the steps in the
+    Boggle board detection process, and then return the
+    board as a list of strings.
+    """
+    
+    # Resize the image to a smaller size
+    input_image = resize_image(input_image, max_image_height)
+
+    # STEP 1: LOCATING THE BOARD
+    # ====================================================
+
+    # Parameterizing the method
+    n_top_contours_to_consider = 200
+    min_board_area_threshold = 0.15
+    max_board_area_threshold = 0.8
+    board_contour_expansion_size = 25
+    polygon_approximation_epsilon = 0.05
+    binary_threshold_value = 100
+
+    # Detect the board contour
+    boggle_board_contour = detect_boggle_board_contour(
+        input_image,
+        n_top_contours_to_consider,
+        min_board_area_threshold,
+        max_board_area_threshold,
+        board_contour_expansion_size,
+        polygon_approximation_epsilon,
+        binary_threshold_value,
+    )
+
+    # STEP 2: WARPING IMAGE PERPSECTIVE
+    # ====================================================
+
+    # Warp the input image to get a top-down view of the board
+    top_down_board_image = warp_perspective_to_top_down(
+        input_image, boggle_board_contour
+    )
+
+    # STEP 3: TILE CONTOUR DETECTION
+    # ====================================================
+
+    # Parameterizing the tile detection process
+    binary_threshold_value = 100
+    min_tile_area_percentage = 0.0003
+    max_tile_area_percentage = 0.02
+    tile_size_difference_threshold = 0.3
+    polygon_approximation_epsilon = 0.02
+
+    # Run the tile detection process
+    tile_contours_df = detect_tile_contours(
+        top_down_board_image=top_down_board_image,
+        binary_threshold_value=binary_threshold_value,
+        min_tile_area_percentage=min_tile_area_percentage,
+        max_tile_area_percentage=max_tile_area_percentage,
+        tile_size_difference_threshold=tile_size_difference_threshold,
+    )
+
+    # STEP 4: TILE IMAGE EXTRACTION
+    # ====================================================
+
+    # Parameterize this method
+    min_contour_pct_of_total_area = 0.003
+    polygon_approximation_epsilon = 0.01
+    min_contour_in_underline = 2
+    binary_threshold_value = 200
+    adaptive_threshold_kernel_size_relative = 0.015
+    adaptive_threshold_C = 5
+    resize_size = 100
+
+    # Run the tile extraction method
+    extracted_tile_img_dict, special_tile_info = extract_tile_images(
+        top_down_board_image=top_down_board_image,
+        tile_contours_df=tile_contours_df,
+        min_contour_pct_of_total_area=min_contour_pct_of_total_area,
+        polygon_approximation_epsilon=polygon_approximation_epsilon,
+        min_contour_in_underline=min_contour_in_underline,
+        adaptive_threshold_kernel_size_relative=adaptive_threshold_kernel_size_relative,
+        adaptive_threshold_C=adaptive_threshold_C,
+        resize_size=resize_size,
+    )
+
+    # STEP 5: TILE OCR
+    # ====================================================
+
+    # Run the OCR on the tiles
+    tile_ocr_results_df = ocr_all_tiles(
+        extracted_tile_img_dict,
+        special_tile_info,
+        skeletonize=True,
+        easyocr_reader=easyocr_reader,
+    )
+
+    # Return the DataFrame
+    return tile_ocr_results_df
