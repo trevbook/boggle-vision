@@ -31,4 +31,5 @@ allowed_boggle_tiles = [
     "In",
     "An",
     "He",
+    "BLOCK"
 ]

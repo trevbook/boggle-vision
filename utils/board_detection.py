@@ -1401,7 +1401,8 @@ def ocr_all_tiles(
     return result_df
 
 
-def parse_boggle_board(input_image, max_image_height=1500, easyocr_reader=None):
+def parse_boggle_board(input_image, max_image_height=1500, easyocr_reader=None,
+                       return_parsed_img_sequence=False):
     """
     This method will run through each of the steps in the
     Boggle board detection process, and then return the
@@ -1483,6 +1484,10 @@ def parse_boggle_board(input_image, max_image_height=1500, easyocr_reader=None):
         adaptive_threshold_C=adaptive_threshold_C,
         resize_size=resize_size,
     )
+    
+    # If we want to return the parsed image sequence, we'll do that here
+    if return_parsed_img_sequence:
+        return extracted_tile_img_dict
 
     # STEP 5: TILE OCR
     # ====================================================

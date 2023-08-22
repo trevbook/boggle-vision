@@ -11,4 +11,5 @@ pytesseract
 scikit-learn
 tqdm
 easyocr
+openpyxl
 
