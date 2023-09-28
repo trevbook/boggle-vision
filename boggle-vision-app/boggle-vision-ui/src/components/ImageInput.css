@@ -1,0 +1,49 @@
+.capture-container {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  cursor: pointer;
+  border: 1px solid red;
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+  /* Makes it look clickable */
+}
+
+/* Hide the default input */
+.capture-container input[type="file"] {
+  display: none;
+}
+
+/* Style our custom button */
+.custom-file-button {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 10px 20px;
+  /* background-color: #007bff; */
+  /* color: white; */
+  cursor: pointer;
+}
+
+.video-wrapper {
+  position: relative;
+}
+
+video {
+  width: 100%;
+  height: auto;
+}
+
+.frame-overlay {
+  position: absolute;
+  top: 25%;
+  left: 25%;
+  width: 50%;
+  height: 50%;
+  border: 2px solid red;
+  /* Style the frame as you like */
+  pointer-events: none;
+  /* Let clicks go through the overlay */
+}

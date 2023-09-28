@@ -1,19 +1,34 @@
-import logo from './logo.svg';
 import './App.css';
-import { MantineProvider } from "@mantine/core";
-import ImageInputComponent from './components/ImageInputComponent';
+import { Provider } from 'react-redux'
+import { MantineProvider, Grid } from "@mantine/core";
+import ImageInput from './components/ImageInput';
+import store from './store';
+import { useSelector } from 'react-redux/es/hooks/useSelector';
+import ImageProcessingNotice from './components/ImageProcessingNotice';
+import { setImage } from './slices/imageUploadSlice';
+
 
 function App() {
+
   return (
-    <MantineProvider>
-      <div style={{ "padding": "10px" }}>
-        <h1>Boggle Vision</h1>
-        <div>
-          <p>Below, take a picture of your Boggle board.</p>
-          <ImageInputComponent />
+    <Provider store={store}>
+      <MantineProvider>
+        <div style={{ "padding": "10px", "textAlign": "center" }}>
+          <Grid>
+            <Grid.Col span={12}>
+              <h1>Boggle Vision</h1>
+              <div>
+                <ImageInput />
+              </div>
+              <div>
+                <ImageProcessingNotice />
+              </div>
+            </Grid.Col>
+          </Grid>
         </div>
-      </div>
-    </MantineProvider>
+      </MantineProvider>
+    </Provider>
+
   );
 }
 
