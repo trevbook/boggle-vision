@@ -27,6 +27,7 @@ import utils.settings as settings
 import torch
 import torch.utils.data as data
 from torchvision import transforms
+from torchvision.io import read_image
 
 # Custom-built modules and settings
 from utils.settings import allowed_boggle_tiles
@@ -1526,6 +1527,8 @@ def ocr_all_tiles_cnn(extracted_tile_img_dict, model):
     """
     This method will use a specially trainend CNN to run OCR on the tiles.
     """
+    
+    # print(f"in ocr_all_tiles_cnn with extracted_tile_img_dict of length {len(extracted_tile_img_dict)}")
 
     # Define the transform to apply to each image
     transform = transforms.Compose(
@@ -1538,8 +1541,27 @@ def ocr_all_tiles_cnn(extracted_tile_img_dict, model):
     image_list = []
     image_idx_list = []
     for image_idx, image in extracted_tile_img_dict.items():
-        image_list.append(transform(image))
+        
+        
+        cv2.imwrite(f"test{image_idx}.png", image)
+        png_loaded_image = cv2.imread(f"test{image_idx}.png")
+        
+        image_list.append(read_image(f"test{image_idx}.png").float())
         image_idx_list.append(image_idx)
+        
+        # # If we're working with the first image, do something
+        # if image_idx == 0:
+            
+        #     # Save the image as a PNG using cv2.imwrite
+        #     cv2.imwrite("test.png", image)
+            
+        #     # Read the image back in 
+        #     png_loaded_image = cv2.imread("test.png")
+            
+        #     # Check the equality of the two images
+        #     img_equal = np.array_equal(image, png_loaded_image)
+        #     print(f"Are the two images equal? {img_equal}")
+            
 
     # Create a DataLoader from the image list
     image_loader = data.DataLoader(
@@ -1549,6 +1571,8 @@ def ocr_all_tiles_cnn(extracted_tile_img_dict, model):
     # Run the images through the model
     model_predictions = []
     for image_batch in image_loader:
+        
+        scores_for_batch = model(image_batch)
         score, predicted = torch.max(model(image_batch), 1)
         predicted_letter = allowed_boggle_tiles[predicted.tolist()[0]]
         model_predictions.append(predicted_letter)
