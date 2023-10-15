@@ -7,11 +7,12 @@
 // The following are imports of modules and components that are required to make this component work.
 
 // Import statements for this file
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import "./ImageInput.css";
 import { useDispatch } from 'react-redux';
 import { useSelector } from 'react-redux/es/hooks/useSelector';
-import { setImage } from "../slices/imageUploadSlice";
+import { setImage } from "../../slices/imageUploadSlice";
+import ImageProcessingNotice from "./ImageProcessingNotice";
 
 // ==============================================================
 //                        COMPONENT DEFINITION
@@ -31,6 +32,25 @@ const ImageInput = (
     // Declare a dispatch
     const dispatch = useDispatch();
 
+    // The imageUploadSlice will contain the image that the user uploaded.
+    const imageUploadSlice = useSelector(state => state.imageUpload);
+
+    // This useEffect will be called when the imageUploadSlice.image changes.
+    useEffect(() => {
+
+        // Check if the image is null.
+        if (imageUploadSlice.image !== null) {
+            // Set the image state.
+            setImageState(imageUploadSlice.image)
+        }
+
+        // Otherwise, set the image state to null.
+        else {
+            setImageState(null)
+        }
+    }
+        , [imageUploadSlice.image])
+
     const handleImageChange = (e) => {
         // This function is called when the user uploads an image.
 
@@ -41,7 +61,6 @@ const ImageInput = (
         // Once the file is read, set the image state.
         reader.onload = () => {
             dispatch(setImage(reader.result))
-            setImageState(reader.result)
         }
 
         // Read the file.
@@ -66,7 +85,7 @@ const ImageInput = (
                         <img style={{ "maxWidth": "100%", }} src={image} alt="Image uploaded"></img>
                     ) : (
                         <div className="custom-file-button">
-                            <p>Click to Analyze</p>
+                            <ImageProcessingNotice />
                         </div>
                     )
                 }

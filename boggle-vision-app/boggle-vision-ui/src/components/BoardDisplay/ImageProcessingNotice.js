@@ -9,6 +9,8 @@ import React from 'react';
 import { useSelector } from 'react-redux/es/hooks/useSelector';
 import axios from 'axios';
 import { useState, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+import { setBoardData } from '../../slices/boardDataSlice';
 
 // ==============================================================
 //                        COMPONENT DEFINITION
@@ -19,53 +21,63 @@ const ImageProcessingNotice = () => {
 
     // This state will contain the response from the server.
     const [response, setResponse] = useState(null);
+    const [loading, setLoading] = useState(false);
+
+    // Declare a dispatch
+    const dispatch = useDispatch();
 
     // The imageUploadSlice will contain the image that the user uploaded.
     const imageUploadSlice = useSelector(state => state.imageUpload);
 
     // This useEffect will be called when the imageUploadSlice.image changes.
-    useEffect(()=> {
+    useEffect(() => {
         // If the image is not null, then send the image to the server.
         if (imageUploadSlice.image !== null) {
-            const endpointURL = "http://127.0.0.1:8000/analyze_image";
+
+            // Set the loading to true when the API call is made.
+            setLoading(true);
+            console.log("Setting loading to true")
+
+            // Determine the endpoint URL.
+            const endpointURL = window.location.hostname === 'localhost' ?
+                "http://127.0.0.1:8000/analyze_image" :
+                "http://192.168.1.159:8000/analyze_image";
+
+            // Send the image to the server.
             axios.post(endpointURL, {
                 image: imageUploadSlice.image
             }).then((response) => {
-                console.log(response)
-                setResponse(response.data);
+
+                // Dispatch the action that'll set the board data.
+                dispatch(setBoardData(response.data));
+
             }).catch((error) => {
-                setResponse(JSON.stringify(error));
+                const error_display_str = "Error: " + JSON.stringify(error);
+                setResponse(error_display_str);
+            }).finally(() => {
+
+                // Wait a bit, to give the user a chance to see the loading message.
+                setTimeout(() => {
+                    // Reset loading to false when the API call is finished.
+                    setLoading(false);
+                }, 1000);
             })
         }
+
+        else {
+            // Reset the response to null.
+            setResponse(null);
+        }
+
     }, [imageUploadSlice.image])
 
-    // If the image is null, then return null.
-    if (imageUploadSlice.image === null) {
-        return null;
-    }
-
-    else {
-        // Otherwise, return the following JSX.
-        return (
-            <div>
-                {JSON.stringify(response)}
-            </div>
-        )
-    }
-
-    // else if (response === null) {
-    //     const endpointURL = "http://127.0.0.1:8000/";
-    //     axios.get(endpointURL).then((response) => {
-    //         setResponse(response.data);
-    //     }).catch((error) => {
-    //         setResponse(JSON.stringify(error));
-    //     })
-    // }
-
-    // Otherwise, return the following JSX.
     return (
         <div>
-            {JSON.stringify(response)}
+            {
+                response === null ? "Click to upload an image..." : loading ? "Loading..." : <div style={{ "width": "100%", "wordWrap": "break-word" }}>
+
+                </div>
+            }
         </div>
     )
 }

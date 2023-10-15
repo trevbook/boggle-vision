@@ -15,6 +15,7 @@ export const imageUploadSlice = createSlice({
 
         // This function will set the image
         setImage: (state, action) => {
+            console.log("setImage is running...")
             state.image = action.payload;
         }
 
