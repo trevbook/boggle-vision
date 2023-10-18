@@ -17,6 +17,7 @@ import json
 
 # Importing some custom modules
 import utils.board_detection as board_detect
+import utils.board_solving as board_solve
 from utils.cnn import BoggleCNN
 
 # Setting up the FastAPI app
@@ -53,11 +54,30 @@ def read_item(item_id: int, q: Union[str, None] = None):
     return {"item_id": item_id, "q": q}
 
 
+from fastapi import FastAPI
+from typing import List
+
+@app.post("/solve_board")
+def solve_board(board_data: List[str]):
+    """
+    The following method will solve a Boggle board 
+    when given a list of letters that it contains.
+    """
+    
+    # Parse a 2D board matrix from the board data
+    board_matrix = board_solve.parse_board_from_letter_sequence([x.lower() for x in board_data])
+    
+    # Solve the board
+    solved_boggle_board_df = board_solve.solve_boggle(board_matrix, board_solve.allowed_words_trie)
+    
+    # Return the solved board as a records-style JSON
+    return solved_boggle_board_df.to_dict(orient="records")
+
 # The following endpoint is a POST endpoint that will
 # take in data and then return the JSON representation
 # of that data.
 @app.post("/analyze_image")
-def read_data(data: dict):
+def analyze_image(data: dict):
     # Extract the image string from the dict
     image_str = data.get("image")
     pure_base64_str = image_str.split(",")[-1]
