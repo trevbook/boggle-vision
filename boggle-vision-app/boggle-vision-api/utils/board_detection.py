@@ -1416,6 +1416,7 @@ def parse_boggle_board(
     easyocr_reader=None,
     return_parsed_img_sequence=False,
     model=None,
+    return_list=None,
 ):
     """
     This method will run through each of the steps in the
@@ -1506,18 +1507,19 @@ def parse_boggle_board(
     # STEP 5: TILE OCR
     # ====================================================
 
-    # Run the OCR on the tiles
-    # tile_ocr_results_df = ocr_all_tiles(
-    #     extracted_tile_img_dict,
-    #     special_tile_info,
-    #     skeletonize=True,
-    #     easyocr_reader=easyocr_reader,
-    # )
-
+    # Run the OCR on the Boggle tiles
     tile_ocr_results_df = ocr_all_tiles_cnn(extracted_tile_img_dict, model)
 
-    # Return the DataFrame
-    return tile_ocr_results_df
+    if return_list is None:
+        return tile_ocr_results_df
+
+    # Otherwise, if the user wants to return a list of things, we'll do that here
+    return_list_key_to_value = {
+        "parsed_board": tile_ocr_results_df,
+        "cropped_image": top_down_board_image,
+        "tile_contours": tile_contours_df,
+    }
+    return [return_list_key_to_value[key] for key in return_list]
 
 
 def ocr_all_tiles_cnn(extracted_tile_img_dict, model):
@@ -1528,20 +1530,19 @@ def ocr_all_tiles_cnn(extracted_tile_img_dict, model):
     # Create a list of the images and their corresponding indices
     image_list = []
     for image_idx, image in extracted_tile_img_dict.items():
-        
-        # TODO: This is suboptimal as hell. I gotta figure out how to 
-        # retrain the model to not introduce compression artifacts from 
+        # TODO: This is suboptimal as hell. I gotta figure out how to
+        # retrain the model to not introduce compression artifacts from
         # saving the image as a .png file.
-        
+
         # Save the image as a .png file
         Image.fromarray(image).save(f"{image_idx}.png")
-        
+
         # Use read_image() to read in the tensor
         img_tensor = read_image(f"{image_idx}.png").float()
-        
+
         # Delete the image file
         Path(f"{image_idx}.png").unlink()
-        
+
         # Add the image to the list
         image_list.append(img_tensor)
 

@@ -10,6 +10,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import axios from "axios";
+import { setWordsTableData, setBoardStats } from "../../slices/boardDataSlice";
 
 // ==============================================================
 //                        COMPONENT DEFINITION
@@ -26,19 +27,23 @@ const WordTableContainer = (
     // Set up a selector for the board data.
     const boardDataSlice = useSelector(state => state.boardData);
 
-    // Set up a state to store the solved board data.
-    const [solvedBoardData, setSolvedBoardData] = useState(null);
+    // Set up a selector for the solved board data.
+    const solvedBoardData = useSelector(state => state.boardData.wordsTableData);
+
+    // Set up a dispatch.
+    const dispatch = useDispatch();
 
     // Set up an effect to handle the changing of the board data.
     useEffect(() => {
 
         // If the boardData is null, then set the solvedBoardData to null.
         if (boardDataSlice.boardData === null) {
-            setSolvedBoardData(null);
+
+            // Dispatch the action that'll set the word table data.
+            dispatch(setWordsTableData(null));
+            dispatch(setBoardStats(null));
         }
         else {
-            console.log("boardData:")
-            console.log(boardDataSlice.boardData)
             // Otherwise, we're going to ping the solve_board endpoint.
             const endpointURL = window.location.hostname === 'localhost' ?
                 "http://127.0.0.1:8000/solve_board" :
@@ -47,12 +52,18 @@ const WordTableContainer = (
             // Send the board data to the server.
             axios.post(endpointURL, boardDataSlice.boardData.letter_sequence).then((response) => {
 
+                // Unpack the data from the response
+                const words_table_data = response.data.solved_board;
+                const board_stats = response.data.board_stats;
+
                 // Set the solved board data.
-                setSolvedBoardData(response.data);
+                dispatch(setWordsTableData(words_table_data));
+                dispatch(setBoardStats(board_stats));
+
             }).catch(
                 (error) => {
-                    console.log("Error in WordTableContainer: " + JSON.stringify(error));
-                    setSolvedBoardData(null);
+                    dispatch(setWordsTableData(null));
+                    dispatch(setBoardStats(null));
                 }
             ).finally(() => { });
         }

@@ -7,7 +7,9 @@ export const boardDataSlice = createSlice({
 
     // By default, the board data
     initialState: {
-        boardData: null
+        boardData: null,
+        wordsTableData: null,
+        boardStats: null
     },
 
     // Define the reducers that'll deal with the board data
@@ -16,6 +18,16 @@ export const boardDataSlice = createSlice({
         // This function will set the board data
         setBoardData: (state, action) => {
             state.boardData = action.payload;
+        },
+
+        // This function will set the words table data
+        setWordsTableData: (state, action) => {
+            state.wordsTableData = action.payload;
+        },
+
+        // This function will set the board stats
+        setBoardStats: (state, action) => {
+            state.boardStats = action.payload;
         }
 
     }
@@ -23,5 +35,5 @@ export const boardDataSlice = createSlice({
 })
 
 // Export the action that'll set the image
-export const { setBoardData } = boardDataSlice.actions
+export const { setBoardData, setWordsTableData, setBoardStats } = boardDataSlice.actions
 export default boardDataSlice.reducer

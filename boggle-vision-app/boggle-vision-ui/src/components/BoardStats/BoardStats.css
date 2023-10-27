@@ -1,0 +1,24 @@
+/* Below, you'll find some styling for the BoardStats component. */
+
+.board-stats-metric-container {
+  margin-bottom: 20px;
+}
+
+.board-stats-metric-header {
+  font-weight: bold;
+  font-size: 2.5rem;
+}
+
+.board-stats-metric-value {
+  font-size: 3rem;
+  font-weight: 700;
+}
+
+/* Vertically align the text in the center of the div */
+.board-stats-metric-explanation {
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: left;
+  height: 100%;
+}

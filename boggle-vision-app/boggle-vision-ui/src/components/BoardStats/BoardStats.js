@@ -1,42 +1,133 @@
-// This component is BoardStats, which will contain some statistics 
-// about the Boggle board. 
+import { Grid } from "@mantine/core";
+import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import "./BoardStats.css";
 
-// ==============================================================
-//                              SETUP
-// ==============================================================
-// The following are imports of modules and components that are required to make this component work.
+const BoardStats = () => {
+  const boardData = useSelector((state) => state.boardData);
+  const [boardStats, setBoardStats] = useState(null);
+  const [totalPoints, setTotalPoints] = useState(null);
+  const [elevenPointWords, setElevenPointWords] = useState(null);
+  const [wordCount, setWordCount] = useState(null);
+  const [longestWord, setLongestWord] = useState(null);
 
-// Import statements for this file
-import React, { useRef } from "react";
-import { useDispatch, useSelector } from 'react-redux';
-import boardDataSlice from "../../slices/boardDataSlice";
+  useEffect(() => {
+    setBoardStats(boardData.boardStats);
+  }, [JSON.stringify(boardData)]);
 
-// ==============================================================
-//                        COMPONENT DEFINITION
-// ==============================================================
-// Below, we define the component. 
+  useEffect(() => {
+    console.log(
+      "Entering into the boardStats-controlled useEffect. boardStats is:"
+    );
+    console.log(boardStats);
+    if (boardStats) {
+      setTotalPoints(boardStats.total_points);
+      setElevenPointWords(boardStats.eleven_point_words);
+      setWordCount(boardStats.word_count);
+      setLongestWord({
+        word: boardStats.longest_word,
+        length: boardStats.longest_word_length,
+      });
+    }
+  }, [boardStats]);
 
-/**
- * A component that contains the BoardStats.
- */
-const BoardStats = (
-) => {
+  const getZScoreText = (zScore) => {
+    if (zScore > 0.5) {
+      return "Above average! 🚀";
+    } else if (zScore < -0.5) {
+      return "Below average 😅";
+    } else {
+      return "Average 👍";
+    }
+  };
 
-    // Set up a selector for the board data.
-    const boardData = useSelector(state => state.boardData);
-
-    // Render the component.
+  // This function will return the JSX for a metric.
+  const Metric = (props) => {
     return (
-        <div style={{"width": "100%", "border": "2px solid orange"}}>
-            {boardData.boardData !== null ? <div style={{
-                "width": "100%", "wordBreak": "break-word"
-            }}>
-                {JSON.stringify(boardData.boardData)}
-            </div> : "No board data"}
+      <div className="board-stats-metric-container">
+        <div
+          className="board-stats-metric-header"
+          style={{ ...props.headerStyleOverride }}
+        >
+          {props.header}
         </div>
-    )
+        <div
+          className="board-stats-metric-value"
+          style={{ ...{ color: props.color }, ...props.valueStyleOverride }}
+        >
+          {props.value}
+        </div>
+        <div
+          className="board-stats-metric-explanation"
+          style={{ ...props.explanationStyleOverride }}
+        >
+          {props.explanationText}
+        </div>
+      </div>
+    );
+  };
 
-}
+  return (
+    <div
+      style={{
+        margin: "20px",
+        width: "100%",
+        wordWrap: "break-word",
+        textAlign: "left",
+      }}
+    >
+      {boardStats ? (
+        <>
+          <div style={{ marginBottom: "30px" }}>
+            <Grid>
+              <Grid.Col xs={12} md={6} lg={3}>
+                <Metric
+                  header="Total Points"
+                  value={totalPoints}
+                  color={boardStats.total_points_color}
+                  //   explanationText={getZScoreText(boardStats.total_points_z_score)}
+                />
+              </Grid.Col>
+              <Grid.Col xs={12} md={6} lg={3}>
+                <Metric
+                  header="11-Point Words"
+                  value={elevenPointWords}
+                  color={boardStats.eleven_pointers_color}
+                  //   explanationText={getZScoreText(
+                  //     boardStats.eleven_point_words_z_score
+                  //   )}
+                />
+              </Grid.Col>
+              <Grid.Col xs={12} md={6} lg={3}>
+                <Metric
+                  header="Word Count"
+                  value={wordCount}
+                  color={boardStats.word_count_color}
+                  //   explanationText={getZScoreText(boardStats.word_count_z_score)}
+                />
+              </Grid.Col>
+              <Grid.Col xs={12} md={6} lg={3}>
+                {longestWord ? (
+                  <Metric
+                    header="Longest Word"
+                    value={longestWord.word}
+                    color={boardStats.longest_word_color}
+                    valueStyleOverride={{ fontSize: "2.5rem", fontWeight: 400 }}
+                    explanationText={`${longestWord.length} letters`}
+                    explanationStyleOverride={{ fontStyle: "italic" }}
+                  />
+                ) : (
+                  <div></div>
+                )}
+              </Grid.Col>
+            </Grid>
+          </div>
+        </>
+      ) : (
+        <p>Loading stats...</p>
+      )}
+    </div>
+  );
+};
 
-// Export the component.
-export default BoardStats
+export default BoardStats;

@@ -1416,6 +1416,7 @@ def parse_boggle_board(
     easyocr_reader=None,
     return_parsed_img_sequence=False,
     model=None,
+    return_list=None
 ):
     """
     This method will run through each of the steps in the
@@ -1505,19 +1506,20 @@ def parse_boggle_board(
 
     # STEP 5: TILE OCR
     # ====================================================
-
-    # Run the OCR on the tiles
-    # tile_ocr_results_df = ocr_all_tiles(
-    #     extracted_tile_img_dict,
-    #     special_tile_info,
-    #     skeletonize=True,
-    #     easyocr_reader=easyocr_reader,
-    # )
-
+    
+    # Run the OCR on the Boggle tiles 
     tile_ocr_results_df = ocr_all_tiles_cnn(extracted_tile_img_dict, model)
-
-    # Return the DataFrame
-    return tile_ocr_results_df
+    
+    if return_list is None:
+        return tile_ocr_results_df
+    
+    # Otherwise, if the user wants to return a list of things, we'll do that here
+    return_list_key_to_value = {
+        "parsed_board": tile_ocr_results_df,
+        "cropped_image": top_down_board_image,
+        "tile_contours": tile_contours_df
+    }
+    return [return_list_key_to_value[key] for key in return_list]
 
 
 def ocr_all_tiles_cnn(extracted_tile_img_dict, model):
@@ -1553,7 +1555,6 @@ def ocr_all_tiles_cnn(extracted_tile_img_dict, model):
     # Run the images through the model
     model_predictions = []
     for image_batch in image_loader:
-        scores_for_batch = model(image_batch)
         score, predicted = torch.max(model(image_batch), 1)
         predicted_letter = allowed_boggle_tiles[predicted.tolist()[0]]
         model_predictions.append(predicted_letter)
@@ -1571,59 +1572,3 @@ def ocr_all_tiles_cnn(extracted_tile_img_dict, model):
     return tile_ocr_results_df
 
 
-# Below is a version of the method from GPT-4 that rotates the images:
-
-# from torchvision import transforms
-# import torch
-# import torch.utils.data as data
-# import pandas as pd
-# from PIL import Image
-
-# def ocr_all_tiles_cnn(extracted_tile_img_dict, model, allowed_boggle_tiles):
-#     """
-#     This method will use a specially trained CNN to run OCR on the tiles.
-#     """
-
-#     # Define the transform to apply to each image
-#     transform = transforms.Compose([
-#         transforms.ToTensor(),
-#     ])
-
-#     # Create a list of the images and their corresponding indices
-#     image_list = []
-#     image_idx_list = []
-#     for image_idx, image in extracted_tile_img_dict.items():
-#         image_list.append(transform(image))
-#         image_idx_list.append(image_idx)
-
-#     # Create a DataLoader from the image list
-#     image_loader = data.DataLoader(image_list, batch_size=1, shuffle=False, num_workers=0)
-
-#     # Initialize a list to store model predictions
-#     model_predictions = []
-
-#     # Run the images through the model
-#     for image_batch in image_loader:
-#         max_score = -float('inf')
-#         best_predicted_letter = None
-
-#         # Rotate the image at 0, 90, 180, and 270 degrees and get predictions
-#         for angle in [0, 90, 180, 270]:
-#             rotated_img = torch.rot90(image_batch, k=angle // 90, dims=[-2, -1])
-#             score, predicted = torch.max(model(rotated_img), 1)
-#             if score > max_score:
-#                 max_score = score
-#                 best_predicted_letter = allowed_boggle_tiles[predicted.tolist()[0]]
-
-#         model_predictions.append(best_predicted_letter)
-
-#     # Create a DataFrame from the model predictions
-#     tile_ocr_results_records = []
-#     for idx, letter in enumerate(model_predictions):
-#         tile_ocr_results_records.append({
-#             "tile_idx": idx,
-#             "letter": letter,
-#         })
-#     tile_ocr_results_df = pd.DataFrame(tile_ocr_results_records)
-
-#     return tile_ocr_results_df
