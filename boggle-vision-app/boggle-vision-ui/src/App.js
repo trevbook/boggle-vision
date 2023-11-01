@@ -11,7 +11,7 @@ import BoardStats from './components/BoardStats/BoardStats';
 import WordTableContainer from './components/WordTable/WordTableContainer';
 import { UseSelector } from 'react-redux/es/hooks/useSelector';
 import MainPage from './pages/MainPage';
-import '@mantine/core/styles.css';
+// import '@mantine/core/styles.css';
 
 function App() {
 

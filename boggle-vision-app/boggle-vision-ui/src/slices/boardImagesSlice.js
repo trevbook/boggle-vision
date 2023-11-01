@@ -1,28 +1,51 @@
 // Import statements
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice } from "@reduxjs/toolkit";
 
 export const boardImagesSlice = createSlice({
+  // This slice will be called boardImages.
+  name: "boardImages",
 
-    // This slice will be called boardImages.
-    name: "boardImages",
+  // By default, the board data
+  initialState: {
+    boardImages: null,
+    letterImageContours: null,
+    boardImageOriginalHeight: null,
+    boardImageOriginalWidth: null,
+    wordToLetterContourPath: null,
+  },
 
-    // By default, the board data
-    initialState: {
-        boardImages: null
+  // Define the reducers that'll deal with the board data
+  reducers: {
+    // This function will set the letter image contours
+    setLetterImageContours: (state, action) => {
+      state.letterImageContours = action.payload;
     },
 
-    // Define the reducers that'll deal with the board data
-    reducers: {
+    // This function will set the board data
+    setBoardImages: (state, action) => {
+      state.boardImages = action.payload;
+    },
 
-        // This function will set the board data
-        setBoardImages: (state, action) => {
-            state.boardImages = action.payload;
-        }
+    setBoardImageOriginalHeight: (state, action) => {
+      state.boardImageOriginalHeight = action.payload;
+    },
 
-    }
+    setBoardImageOriginalWidth: (state, action) => {
+      state.boardImageOriginalWidth = action.payload;
+    },
 
-})
+    setWordToLetterContourPath: (state, action) => {
+      state.wordToLetterContourPath = action.payload;
+    },
+  },
+});
 
 // Export the action that'll set the image
-export const { setBoardImages } = boardImagesSlice.actions
-export default boardImagesSlice.reducer
+export const {
+  setBoardImages,
+  setLetterImageContours,
+  setBoardImageOriginalHeight,
+  setBoardImageOriginalWidth,
+  setWordToLetterContourPath,
+} = boardImagesSlice.actions;
+export default boardImagesSlice.reducer;

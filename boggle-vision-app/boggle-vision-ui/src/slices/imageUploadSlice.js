@@ -26,7 +26,3 @@ export const imageUploadSlice = createSlice({
 export const { setImage } = imageUploadSlice.actions
 export default imageUploadSlice.reducer
 
-// // Export a couple of functions that will allow us to open and close the modal.
-// export const { openModal, closeModal } = contextModalSlice.actions
-// export default contextModalSlice.reducer
-

@@ -12,6 +12,10 @@ import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { setBoardData } from "../../slices/boardDataSlice";
 import { setBoardImages } from "../../slices/boardImagesSlice";
+import { setLetterImageContours } from "../../slices/boardImagesSlice";
+import { setLetterSequence } from "../../slices/boardDataSlice";
+import { setBoardImageOriginalHeight } from "../../slices/boardImagesSlice";
+import { setBoardImageOriginalWidth } from "../../slices/boardImagesSlice";
 
 // ==============================================================
 //                        COMPONENT DEFINITION
@@ -51,7 +55,9 @@ const ImageProcessingNotice = () => {
           // We'll start by unpacking the boardData
           const letter_sequence = response.data.letter_sequence;
           const cropped_board_image_str = response.data.cropped_board;
-          const tile_contours = response.data.tile_idx_to_contour_dict;
+          const tile_contours = response.data.tile_contours;
+          const cropped_board_width = response.data.cropped_board_width;
+          const cropped_board_height = response.data.cropped_board_height;
 
           // Make a boardData object
           const cur_board_data = {
@@ -64,6 +70,16 @@ const ImageProcessingNotice = () => {
 
           // Dispatch the action that'll set the board images.
           dispatch(setBoardImages({ cropped_board: cropped_board_image_str }));
+
+          // Dispatch the action that'll set the letter image contours.
+          dispatch(setLetterImageContours(tile_contours));
+
+          // Dispatch the action that'll set the letter sequence.
+          dispatch(setLetterSequence(letter_sequence));
+
+          // Dispatch some of the height and width data
+          dispatch(setBoardImageOriginalHeight(cropped_board_height));
+          dispatch(setBoardImageOriginalWidth(cropped_board_width));
         })
         .catch((error) => {
           const error_display_str = "Error: " + JSON.stringify(error);

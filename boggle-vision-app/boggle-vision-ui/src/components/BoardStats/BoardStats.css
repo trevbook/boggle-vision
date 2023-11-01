@@ -6,11 +6,14 @@
 
 .board-stats-metric-header {
   font-weight: bold;
-  font-size: 2.5rem;
+  font-size: 1.75rem;
+  word-break: break-word;
+  word-wrap: break-word;
+  width: 100%
 }
 
 .board-stats-metric-value {
-  font-size: 3rem;
+  font-size: 2.25rem;
   font-weight: 700;
 }
 

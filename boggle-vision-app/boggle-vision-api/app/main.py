@@ -123,6 +123,11 @@ def solve_board(board_data: List[str]):
         board_matrix, board_solve.allowed_words_trie
     )
 
+    # Create a dictionary mapping the word_id to the path
+    word_id_to_path_dict = {
+        row.word_id: row.path for row in solved_boggle_board_df.itertuples()
+    }
+
     # Determine the total number of points in the solved_boggle_board_df
     total_points = int(solved_boggle_board_df["points"].sum())
 
@@ -157,6 +162,9 @@ def solve_board(board_data: List[str]):
     word_count_color = get_custom_gradient_color(
         num_words, boggle_board_word_count_stats
     )
+    avg_points_per_word_color = get_custom_gradient_color(
+        total_points / num_words, boggle_board_point_stats["avg_points_per_word"]
+    )
 
     # Determine how many standard deviations the total_points is from the mean
     total_points_mean = boggle_board_total_points_stats["mean"]
@@ -175,6 +183,16 @@ def solve_board(board_data: List[str]):
     word_count_std = boggle_board_word_count_stats["std"]
     word_count_z_score = (num_words - word_count_mean) / word_count_std
 
+    # Determine the average points per word
+    avg_points_per_word = total_points / num_words
+
+    # Determine how many standard deviations the avg_points_per_word is from the mean
+    avg_points_per_word_mean = boggle_board_point_stats["avg_points_per_word"]["mean"]
+    avg_points_per_word_std = boggle_board_point_stats["avg_points_per_word"]["std"]
+    avg_points_per_word_z_score = (
+        avg_points_per_word - avg_points_per_word_mean
+    ) / avg_points_per_word_std
+
     # Return the solved board as a records-style JSON
     return {
         "board_stats": {
@@ -189,8 +207,12 @@ def solve_board(board_data: List[str]):
             "total_points_z_score": total_points_z_score,
             "eleven_pointers_z_score": eleven_pointers_z_score,
             "word_count_z_score": word_count_z_score,
+            "avg_points_per_word": float(f"{avg_points_per_word:.2f}"),
+            "avg_points_per_word_color": avg_points_per_word_color,
+            "avg_points_per_word_z_score": avg_points_per_word_z_score,
         },
         "solved_board": solved_boggle_board_df.to_dict(orient="records"),
+        "word_id_to_path": word_id_to_path_dict
     }
 
 
@@ -227,6 +249,9 @@ def analyze_image(data: dict):
         return_list=["parsed_board", "cropped_image", "tile_contours"],
     )
 
+    # Determine the width and height of the cropped_board_img
+    cropped_board_height, cropped_board_width = cropped_board_img.shape[:2]
+
     # Encode the image as a base64 string
     _, buffer = cv2.imencode(".png", cropped_board_img)
     cropped_board_img_str = base64.b64encode(buffer.tobytes()).decode("utf-8")
@@ -245,4 +270,6 @@ def analyze_image(data: dict):
         "letter_sequence": letter_sequence,
         "cropped_board": cropped_board_img_str,
         "tile_contours": tile_idx_to_contour_dict,
+        "cropped_board_width": cropped_board_width,
+        "cropped_board_height": cropped_board_height,
     }

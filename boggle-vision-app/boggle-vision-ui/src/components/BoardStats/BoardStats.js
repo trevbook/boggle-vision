@@ -10,16 +10,13 @@ const BoardStats = () => {
   const [elevenPointWords, setElevenPointWords] = useState(null);
   const [wordCount, setWordCount] = useState(null);
   const [longestWord, setLongestWord] = useState(null);
+  const [avgPointsPerWord, setAvgPointsPerWord] = useState(null);
 
   useEffect(() => {
     setBoardStats(boardData.boardStats);
   }, [JSON.stringify(boardData)]);
 
   useEffect(() => {
-    console.log(
-      "Entering into the boardStats-controlled useEffect. boardStats is:"
-    );
-    console.log(boardStats);
     if (boardStats) {
       setTotalPoints(boardStats.total_points);
       setElevenPointWords(boardStats.eleven_point_words);
@@ -28,6 +25,7 @@ const BoardStats = () => {
         word: boardStats.longest_word,
         length: boardStats.longest_word_length,
       });
+      setAvgPointsPerWord(boardStats.avg_points_per_word);
     }
   }, [boardStats]);
 
@@ -74,13 +72,14 @@ const BoardStats = () => {
         width: "100%",
         wordWrap: "break-word",
         textAlign: "left",
+        "paddingRight": "10px"
       }}
     >
       {boardStats ? (
         <>
           <div style={{ marginBottom: "30px" }}>
             <Grid>
-              <Grid.Col xs={12} md={6} lg={3}>
+              <Grid.Col span={6}>
                 <Metric
                   header="Total Points"
                   value={totalPoints}
@@ -88,7 +87,15 @@ const BoardStats = () => {
                   //   explanationText={getZScoreText(boardStats.total_points_z_score)}
                 />
               </Grid.Col>
-              <Grid.Col xs={12} md={6} lg={3}>
+              <Grid.Col span={6}>
+                <Metric
+                  header="Word Count"
+                  value={wordCount}
+                  color={boardStats.word_count_color}
+                  //   explanationText={getZScoreText(boardStats.word_count_z_score)}
+                />
+              </Grid.Col>
+              <Grid.Col span={6}>
                 <Metric
                   header="11-Point Words"
                   value={elevenPointWords}
@@ -98,16 +105,17 @@ const BoardStats = () => {
                   //   )}
                 />
               </Grid.Col>
-              <Grid.Col xs={12} md={6} lg={3}>
+
+              <Grid.Col span={6}>
                 <Metric
-                  header="Word Count"
-                  value={wordCount}
-                  color={boardStats.word_count_color}
-                  //   explanationText={getZScoreText(boardStats.word_count_z_score)}
+                  header="Avg. Points/Word"
+                  value={avgPointsPerWord}
+                  color={boardStats.avg_points_per_word_color}
+                  //   explanationText={getZScoreText(
+                  //     boardStats.eleven_point_words_z_score
+                  //   )}
                 />
-              </Grid.Col>
-              <Grid.Col xs={12} md={6} lg={3}>
-                {longestWord ? (
+                {/* {longestWord ? (
                   <Metric
                     header="Longest Word"
                     value={longestWord.word}
@@ -118,7 +126,7 @@ const BoardStats = () => {
                   />
                 ) : (
                   <div></div>
-                )}
+                )} */}
               </Grid.Col>
             </Grid>
           </div>

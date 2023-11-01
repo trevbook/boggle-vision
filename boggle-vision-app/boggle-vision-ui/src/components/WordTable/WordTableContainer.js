@@ -11,6 +11,8 @@ import React, { useRef, useState, useEffect } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import axios from "axios";
 import { setWordsTableData, setBoardStats } from "../../slices/boardDataSlice";
+import WordTable from "./WordTable";
+import { setWordToLetterContourPath } from "../../slices/boardImagesSlice";
 
 // ==============================================================
 //                        COMPONENT DEFINITION
@@ -55,10 +57,12 @@ const WordTableContainer = (
                 // Unpack the data from the response
                 const words_table_data = response.data.solved_board;
                 const board_stats = response.data.board_stats;
+                const word_id_to_path = response.data.word_id_to_path;
 
                 // Set the solved board data.
                 dispatch(setWordsTableData(words_table_data));
                 dispatch(setBoardStats(board_stats));
+                dispatch(setWordToLetterContourPath(word_id_to_path));
 
             }).catch(
                 (error) => {
@@ -84,7 +88,7 @@ const WordTableContainer = (
     // Otherwise, we're going to render the WordTableContainer.
     return (
         <div style={{ "width": "100%", "border": "2px solid green" }}>
-            {JSON.stringify(solvedBoardData)}
+            <WordTable wordsTableData={solvedBoardData} />
         </div>
     )
 

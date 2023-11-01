@@ -62,17 +62,28 @@ def is_valid(x, y, visited, board):
 
 
 # Run DFS on the board to find words
-def dfs(x, y, board, visited, trie, word, found_words):
-    if trie.get("end"):
-        found_words.add(word)
-
+def dfs(x, y, board, visited, trie, word, found_words, path):
+    # Otherwise, we're going to continue searching for words around this tile.
     visited[x][y] = True
+    new_path = list(path)
+    array_idx = x * len(board[0]) + y
+    new_path.append(array_idx)
+
+    # If we're at the end of the path on the trie, we've found a word.
+    # Add the path to the found_words dict.
+    if trie.get("end"):
+        found_words[word] = new_path
 
     # Adjacent positions (up, down, left, right, and diagonals)
     directions = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
 
+    # Iterate through all possible directions from this tile
     for dx, dy in directions:
+        # Figure out the new x and y positions
         new_x, new_y = x + dx, y + dy
+
+        # If the new position is valid and the tile is not a "block",
+        # then we're going to continue searching for words from this tile.
         if is_valid(new_x, new_y, visited, board) and board[new_x][new_y] != "block":
             next_char = board[new_x][new_y]
             if next_char in trie:
@@ -84,14 +95,16 @@ def dfs(x, y, board, visited, trie, word, found_words):
                     trie[next_char],
                     word + next_char,
                     found_words,
+                    new_path,
                 )
 
+    # Reset the visited flag for this tile
     visited[x][y] = False
 
 
 # Solve the Boggle board
 def solve_boggle(board, trie):
-    found_words = set()
+    found_words = {}
 
     rows, cols = len(board), len(board[0])
     visited = [[False for _ in range(cols)] for _ in range(rows)]
@@ -100,27 +113,27 @@ def solve_boggle(board, trie):
         for j in range(cols):
             start_char = board[i][j]
             if start_char in trie:
-                dfs(
-                    i,
-                    j,
-                    board,
-                    visited,
-                    trie[start_char],
-                    start_char,
-                    found_words,
-                )
+                dfs(i, j, board, visited, trie[start_char], start_char, found_words, [])
 
     # Now, we're going to create a DataFrame that contains the words found on each board
     available_words_df = pd.DataFrame.from_records(
         [
-            {"word": word, "length": len(word), "points": score_boggle_word(word)}
-            for word in found_words
+            {
+                "word": word,
+                "length": len(word),
+                "points": score_boggle_word(word),
+                "path": path,
+            }
+            for word, path in found_words.items()
         ]
     )
-    
+
     if len(available_words_df) > 0:
         available_words_df = available_words_df.sort_values(
             "length", ascending=False
         ).query("length >= 4")
+
+    # Assign a "word_id" to each word
+    available_words_df["word_id"] = range(len(available_words_df))
 
     return available_words_df
