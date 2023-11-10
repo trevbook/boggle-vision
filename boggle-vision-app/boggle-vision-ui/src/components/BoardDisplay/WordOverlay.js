@@ -37,15 +37,16 @@ const WordOverlay = (props) => {
 
     // If the selected_word_index is null, leave this effect.
     if (selected_word_index === null) {
+
+      // Clear everything on the canvas
       const ctx = wordOverlayCanvasRef.current.getContext("2d");
-      setTimeout(() => {
-        ctx.clearRect(
-          0,
-          0,
-          wordOverlayCanvasRef.current.width,
-          wordOverlayCanvasRef.current.height
-        );
-      }, 30);
+      ctx.clearRect(
+        0,
+        0,
+        wordOverlayCanvasRef.current.width,
+        wordOverlayCanvasRef.current.height
+      );
+
       return;
     }
 

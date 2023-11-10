@@ -22,6 +22,7 @@ from typing import List
 import utils.board_detection as board_detect
 import utils.board_solving as board_solve
 from utils.cnn import BoggleCNN
+from utils.visual_filters import generate_activation_heatmap_filter
 
 # Setting up the FastAPI app
 app = FastAPI()
@@ -212,7 +213,7 @@ def solve_board(board_data: List[str]):
             "avg_points_per_word_z_score": avg_points_per_word_z_score,
         },
         "solved_board": solved_boggle_board_df.to_dict(orient="records"),
-        "word_id_to_path": word_id_to_path_dict
+        "word_id_to_path": word_id_to_path_dict,
     }
 
 
@@ -242,12 +243,32 @@ def analyze_image(data: dict):
         parsed_board_df,
         cropped_board_img,
         tile_contours_df,
+        letter_activation_visualization_list,
     ) = board_detect.parse_boggle_board(
         input_image=image,
         max_image_height=1200,
         model=net,
-        return_list=["parsed_board", "cropped_image", "tile_contours"],
+        return_list=[
+            "parsed_board",
+            "cropped_image",
+            "tile_contours",
+            "activation_visualization",
+        ],
     )
+
+    # Use the generate_activation_heatmap_filter to generate an activation heatmap of the board
+    activation_heatmap_img = generate_activation_heatmap_filter(
+        cropped_board_img,
+        letter_activation_visualization_list,
+        tile_idx_to_contour_dict={
+            row.tile_sequence_idx: row.contour.squeeze().tolist()
+            for row in tile_contours_df.itertuples()
+        },
+    )
+    
+    # Encode this activation heatmap as a base64 string
+    _, buffer = cv2.imencode(".png", activation_heatmap_img)
+    activation_heatmap_img_str = base64.b64encode(buffer.tobytes()).decode("utf-8")
 
     # Determine the width and height of the cropped_board_img
     cropped_board_height, cropped_board_width = cropped_board_img.shape[:2]
@@ -255,6 +276,22 @@ def analyze_image(data: dict):
     # Encode the image as a base64 string
     _, buffer = cv2.imencode(".png", cropped_board_img)
     cropped_board_img_str = base64.b64encode(buffer.tobytes()).decode("utf-8")
+
+    # For each of the image pixel 2D arrays in letter_activation_visualization_list,
+    # convert them to images and then encode them as base64 strings
+    letter_activation_viz_strings = []
+    for i in range(len(letter_activation_visualization_list)):
+        # Get the image pixel 2D array
+        image_pixel_2d_array = letter_activation_visualization_list[i]
+
+        # Convert the image pixel 2D array to an image
+        image = Image.fromarray(image_pixel_2d_array)
+
+        # Encode the image as a base64 string
+        _, buffer = cv2.imencode(".png", np.array(image))
+        letter_activation_viz_strings.append(
+            base64.b64encode(buffer.tobytes()).decode("utf-8")
+        )
 
     # Get the letter sequence
     letter_sequence = list(parsed_board_df["letter"])
@@ -272,4 +309,6 @@ def analyze_image(data: dict):
         "tile_contours": tile_idx_to_contour_dict,
         "cropped_board_width": cropped_board_width,
         "cropped_board_height": cropped_board_height,
+        "letter_activation_visualization_list": letter_activation_viz_strings,
+        "activation_heatmap": activation_heatmap_img_str
     }

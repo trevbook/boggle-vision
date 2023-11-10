@@ -17,9 +17,11 @@ import { setImage } from "../../slices/imageUploadSlice";
 import { useDisclosure } from "@mantine/hooks";
 import EditModalContent from "./EditModal/EditModalContent";
 import {
+  resetAllControls,
   setSelectedWordIndex,
   toggleLetterOverlay,
 } from "../../slices/userControlSlice";
+import FiltersModalContent from "./FiltersModal/FiltersModalContent";
 
 // ==============================================================
 //                        COMPONENT DEFINITION
@@ -57,22 +59,38 @@ const BoardControlsContainer = () => {
   const dispatch = useDispatch();
   const [opened, { open, close }] = useDisclosure();
 
-  // Set up some selectors for this component
-  const show_letter_overlay = useSelector((state) => state.userControl.show_letter_overlay);
-  const selected_word_index = useSelector((state) => state.userControl.selected_word_index);
+  const [filtersModalOpen, setFiltersModalOpen] = React.useState(false);
 
+  // Set up some selectors for this component
+  const show_letter_overlay = useSelector(
+    (state) => state.userControl.show_letter_overlay
+  );
+  const selected_word_index = useSelector(
+    (state) => state.userControl.selected_word_index
+  );
 
   return (
     <div>
-      <Modal opened={opened} onClose={close} title="Edit Board">
+      <Modal opened={opened} onClose={close} title="Edit Board" size="70%">
         <EditModalContent />
+      </Modal>
+      <Modal
+        opened={filtersModalOpen}
+        onClose={() => setFiltersModalOpen(false)}
+        title="Image Filters"
+        size="70%"
+      >
+        <FiltersModalContent />
       </Modal>
       <div style={styles.container}>
         {[
           {
             icon: "mdi:image-edit-outline",
             color: "green",
-            description: "Edit Image",
+            onClick: () => {
+              setFiltersModalOpen(true);
+            },
+            description: "Image Filters",
           },
           {
             icon: "mdi:eraser",
@@ -90,15 +108,13 @@ const BoardControlsContainer = () => {
             onClick: () => {
               dispatch(toggleLetterOverlay(true));
             },
-            description: show_letter_overlay
-              ? "Letters"
-              : "Letters",
+            description: show_letter_overlay ? "Letters" : "Letters",
           },
-          {
-            icon: "mdi:rotate-left-variant",
-            color: "blue",
-            description: "Rotate Left",
-          },
+          // {
+          //   icon: "mdi:rotate-left-variant",
+          //   color: "blue",
+          //   description: "Rotate Left",
+          // },
           {
             icon: "mdi:pencil-outline",
             color: "black",
@@ -109,10 +125,14 @@ const BoardControlsContainer = () => {
             icon: "mdi:close-thick",
             color: "red",
             onClick: () => {
-              dispatch(setBoardImages(null));
-              dispatch(setBoardData(null));
-              dispatch(setImage(null));
-              dispatch(setBoardStats(null));
+              dispatch(resetAllControls());
+              setTimeout(() => {
+                dispatch(setImage(null));
+                dispatch(setBoardImages(null));
+                dispatch(setBoardData(null));
+                dispatch(setBoardStats(null));
+              })
+              
             },
             description: "Clear Board",
           },

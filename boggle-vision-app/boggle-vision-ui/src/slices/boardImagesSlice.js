@@ -12,6 +12,7 @@ export const boardImagesSlice = createSlice({
     boardImageOriginalHeight: null,
     boardImageOriginalWidth: null,
     wordToLetterContourPath: null,
+    letterImageActivations: null,
   },
 
   // Define the reducers that'll deal with the board data
@@ -37,6 +38,10 @@ export const boardImagesSlice = createSlice({
     setWordToLetterContourPath: (state, action) => {
       state.wordToLetterContourPath = action.payload;
     },
+
+    setLetterImageActivations: (state, action) => {
+      state.letterImageActivations = action.payload;
+    }
   },
 });
 
@@ -47,5 +52,6 @@ export const {
   setBoardImageOriginalHeight,
   setBoardImageOriginalWidth,
   setWordToLetterContourPath,
+  setLetterImageActivations
 } = boardImagesSlice.actions;
 export default boardImagesSlice.reducer;

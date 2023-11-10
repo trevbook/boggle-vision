@@ -11,7 +11,10 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { setBoardData } from "../../slices/boardDataSlice";
-import { setBoardImages } from "../../slices/boardImagesSlice";
+import {
+  setBoardImages,
+  setLetterImageActivations,
+} from "../../slices/boardImagesSlice";
 import { setLetterImageContours } from "../../slices/boardImagesSlice";
 import { setLetterSequence } from "../../slices/boardDataSlice";
 import { setBoardImageOriginalHeight } from "../../slices/boardImagesSlice";
@@ -58,6 +61,9 @@ const ImageProcessingNotice = () => {
           const tile_contours = response.data.tile_contours;
           const cropped_board_width = response.data.cropped_board_width;
           const cropped_board_height = response.data.cropped_board_height;
+          const letter_activation_visualization_list =
+            response.data.letter_activation_visualization_list;
+          const activation_heatmap = response.data.activation_heatmap;
 
           // Make a boardData object
           const cur_board_data = {
@@ -69,7 +75,12 @@ const ImageProcessingNotice = () => {
           dispatch(setBoardData(cur_board_data));
 
           // Dispatch the action that'll set the board images.
-          dispatch(setBoardImages({ cropped_board: cropped_board_image_str }));
+          dispatch(
+            setBoardImages({
+              cropped_board: cropped_board_image_str,
+              activation_heatmap: activation_heatmap,
+            })
+          );
 
           // Dispatch the action that'll set the letter image contours.
           dispatch(setLetterImageContours(tile_contours));
@@ -80,6 +91,11 @@ const ImageProcessingNotice = () => {
           // Dispatch some of the height and width data
           dispatch(setBoardImageOriginalHeight(cropped_board_height));
           dispatch(setBoardImageOriginalWidth(cropped_board_width));
+
+          // Dispatch the setting of the letter_activation_visualization_list
+          dispatch(
+            setLetterImageActivations(letter_activation_visualization_list)
+          );
         })
         .catch((error) => {
           const error_display_str = "Error: " + JSON.stringify(error);

@@ -6,6 +6,7 @@ import ImageProcessingNotice from "../components/BoardDisplay/ImageProcessingNot
 import BoardControlsContainer from "../components/BoardControls/BoardControlsContainer";
 import BoardStats from "../components/BoardStats/BoardStats";
 import WordTableContainer from "../components/WordTable/WordTableContainer";
+import SelectedWordInfoPanel from "../components/SelectedWordInfo/SelectedWordInfoPanel";
 
 function MainPage() {
   // Set up a selector for the boardDataSlice.
@@ -47,6 +48,17 @@ function MainPage() {
                 {/* Word Table */}
                 <div>
                   <WordTableContainer />
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    justifyContent: "center",
+                    // alignItems: "center",
+                    "width": "100%"
+                  }}
+                >
+                  <SelectedWordInfoPanel />
                 </div>
               </Grid.Col>
             </div>

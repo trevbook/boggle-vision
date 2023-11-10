@@ -31,6 +31,7 @@ from torchvision.io import read_image
 
 # Custom-built modules and settings
 from utils.settings import allowed_boggle_tiles
+from utils.cnn import SaveFeatures
 
 
 # =================================================
@@ -1416,7 +1417,7 @@ def parse_boggle_board(
     easyocr_reader=None,
     return_parsed_img_sequence=False,
     model=None,
-    return_list=None
+    return_list=None,
 ):
     """
     This method will run through each of the steps in the
@@ -1506,44 +1507,65 @@ def parse_boggle_board(
 
     # STEP 5: TILE OCR
     # ====================================================
-    
-    # Run the OCR on the Boggle tiles 
-    tile_ocr_results_df = ocr_all_tiles_cnn(extracted_tile_img_dict, model)
-    
+
+    # Run the OCR on the Boggle tiles
+    tile_ocr_results = ocr_all_tiles_cnn(
+        extracted_tile_img_dict,
+        model,
+        return_activation_visualization="activation_visualization" in return_list,
+    )
+
+    # Unpack the results of the `ocr_all_tiles_cnn` method
+    if "activation_visualization" in return_list:
+        tile_ocr_results_df, activation_visualizations = tile_ocr_results
+    else:
+        tile_ocr_results_df = tile_ocr_results
+        activation_visualizations = None
+
     if return_list is None:
         return tile_ocr_results_df
-    
+
     # Otherwise, if the user wants to return a list of things, we'll do that here
     return_list_key_to_value = {
         "parsed_board": tile_ocr_results_df,
         "cropped_image": top_down_board_image,
-        "tile_contours": tile_contours_df
+        "tile_contours": tile_contours_df,
+        "tile_images": extracted_tile_img_dict,
+        "activation_visualization": activation_visualizations,
     }
     return [return_list_key_to_value[key] for key in return_list]
 
 
-def ocr_all_tiles_cnn(extracted_tile_img_dict, model):
+def ocr_all_tiles_cnn(
+    extracted_tile_img_dict, model, return_activation_visualization=False
+):
     """
     This method will use a specially trainend CNN to run OCR on the tiles.
     """
 
+    # If we want to return the activation visualization, we'll attach the hook
+    # that allows us to do that
+    if return_activation_visualization:
+        # Attach the hook to one of the convolutional layers
+        layer_of_interest = model.features[5]
+        activated_features = SaveFeatures(layer_of_interest)
+
     # Create a list of the images and their corresponding indices
     image_list = []
     for image_idx, image in extracted_tile_img_dict.items():
-        
-        # TODO: This is suboptimal as hell. I gotta figure out how to 
-        # retrain the model to not introduce compression artifacts from 
+        # TODO: This is suboptimal as hell. I gotta figure out how to
+        # retrain the model to not introduce compression artifacts from
         # saving the image as a .png file.
-        
+
         # Save the image as a .png file
         Image.fromarray(image).save(f"{image_idx}.png")
-        
+
         # Use read_image() to read in the tensor
         img_tensor = read_image(f"{image_idx}.png").float()
-        
+
         # Delete the image file
         Path(f"{image_idx}.png").unlink()
-        
+
         # Add the image to the list
         image_list.append(img_tensor)
 
@@ -1554,10 +1576,30 @@ def ocr_all_tiles_cnn(extracted_tile_img_dict, model):
 
     # Run the images through the model
     model_predictions = []
+    activation_visualizations = []
     for image_batch in image_loader:
         score, predicted = torch.max(model(image_batch), 1)
         predicted_letter = allowed_boggle_tiles[predicted.tolist()[0]]
         model_predictions.append(predicted_letter)
+
+        # If we're trying to return the activation visualization, we'll do that here
+        if return_activation_visualization:
+            # Convert the activations to a numpy array representing a heatmap image
+            activation_visualization = activated_features.features
+            activation_visualization = np.mean(
+                activation_visualization, axis=1
+            ).squeeze()
+            activation_visualization = np.maximum(activation_visualization, 0)
+            activation_visualization /= np.max(activation_visualization)
+            
+            # Normalize the numpy array and convert to 8-bit integer
+            activation_visualization = (activation_visualization * 255).astype(np.uint8)
+            
+            # Convert to a list
+            # activation_visualization = activation_visualization.tolist()
+            
+            # Append to the list of visualizations
+            activation_visualizations.append(activation_visualization)
 
     # Now, we're going to make a DataFrame from the model predictions
     tile_ocr_results_records = []
@@ -1569,6 +1611,11 @@ def ocr_all_tiles_cnn(extracted_tile_img_dict, model):
             }
         )
     tile_ocr_results_df = pd.DataFrame(tile_ocr_results_records)
-    return tile_ocr_results_df
 
+    # If we're not returning the activation visualization, we'll return the tile_ocr_results_df
+    if not return_activation_visualization:
+        return tile_ocr_results_df
 
+    # Otherwise, we'll return both
+    else:
+        return tile_ocr_results_df, activation_visualizations

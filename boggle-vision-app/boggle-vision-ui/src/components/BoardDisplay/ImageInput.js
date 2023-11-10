@@ -15,6 +15,7 @@ import { setImage } from "../../slices/imageUploadSlice";
 import ImageProcessingNotice from "./ImageProcessingNotice";
 import TileOverlay from "./TileOverlay";
 import WordOverlay from "./WordOverlay";
+import FilterOverlay from "./FilterOverlay";
 
 // ==============================================================
 //                        COMPONENT DEFINITION
@@ -31,6 +32,7 @@ const ImageInput = () => {
   const boardCanvasRef = useRef(null);
   const overlayCanvasRef = useRef(null);
   const wordOverlayCanvasRef = useRef(null);
+  const filterOverlayCanvasRef = useRef(null);
 
   // Declare a dispatch
   const dispatch = useDispatch();
@@ -79,6 +81,8 @@ const ImageInput = () => {
         overlayCanvas.height = img.height;
         wordOverlayCanvasRef.current.width = img.width;
         wordOverlayCanvasRef.current.height = img.height;
+        filterOverlayCanvasRef.current.width = img.width;
+        filterOverlayCanvasRef.current.height = img.height;
         ctx.drawImage(img, 0, 0);
       };
     }
@@ -127,7 +131,7 @@ const ImageInput = () => {
               ref={overlayCanvasRef}
               style={{
                 position: "absolute",
-                zIndex: 2,
+                zIndex: 3,
                 maxWidth: "100%",
                 height: "100%",
               }}
@@ -138,15 +142,26 @@ const ImageInput = () => {
               ref={wordOverlayCanvasRef}
               style={{
                 position: "absolute",
-                zIndex: 3,
+                zIndex: 4,
+                maxWidth: "100%",
+                height: "100%",
+              }}
+            />
+
+            {/* Canvas for the word overlay */}
+            <canvas
+              ref={filterOverlayCanvasRef}
+              style={{
+                position: "absolute",
+                zIndex: 2,
                 maxWidth: "100%",
                 height: "100%",
               }}
             />
 
             {/* Your TileOverlay component */}
+            <FilterOverlay filterOverlayCanvasRef={filterOverlayCanvasRef} />
             <TileOverlay overlayCanvasRef={overlayCanvasRef} />
-
             <WordOverlay wordOverlayCanvasRef={wordOverlayCanvasRef} />
           </div>
         ) : (

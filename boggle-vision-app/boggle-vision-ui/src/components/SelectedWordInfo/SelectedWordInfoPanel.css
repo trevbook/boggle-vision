@@ -1,0 +1,17 @@
+.selectedWordInfoPanel {
+    position: fixed; /* Fixed position to stay at the bottom */
+    bottom: 0; /* Align to the bottom of the viewport */
+    width: 98%; /* Full width */
+    transform: translateY(100%); /* Start off-screen */
+    transition: transform 0.5s ease-in-out; /* Smooth transition for sliding effect */
+    z-index: 100;
+  }
+  
+  .panelVisible {
+    transform: translateY(0); /* Slide into view */
+  }
+  
+  .panelHidden {
+    transform: translateY(100%); /* Slide out of view */
+  }
+  
