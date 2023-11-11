@@ -38,7 +38,7 @@ app.add_middleware(
 
 # Load in the CNN model
 net = BoggleCNN()
-net.load_state_dict(torch.load("models/boggle_cnn.pth"))
+net.load_state_dict(torch.load("models/boggle_cnn.pth", map_location=torch.device("cpu")))
 
 # Load in the Boggle board point distribution
 with open("data/boggle-board-point-stats.json", "r") as json_file:

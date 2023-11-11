@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  api:
+    build: ./boggle-vision-api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./boggle-vision-api:/usr/src/app
+    restart: always
+
+  ui:
+    build: ./boggle-vision-ui
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./boggle-vision-ui:/usr/src/app
+    restart: always

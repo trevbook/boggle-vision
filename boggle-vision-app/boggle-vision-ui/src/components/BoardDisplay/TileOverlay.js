@@ -29,6 +29,14 @@ const TileOverlay = (props) => {
 
     // If the userControlSlice.show_letter_overlay is false, leave this effect.
     if (!userControlSlice.show_letter_overlay) {
+      const ctx = overlayCanvasRef.current.getContext("2d");
+      // Delete everything on the canvas
+      ctx.clearRect(
+        0,
+        0,
+        overlayCanvasRef.current.width,
+        overlayCanvasRef.current.height
+      );
       return;
     }
 

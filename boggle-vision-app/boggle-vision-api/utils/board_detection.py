@@ -17,7 +17,7 @@ import numpy as np
 from statistics import mode
 import utils
 import cv2
-import pytesseract
+# import pytesseract
 from PIL import Image
 from tqdm import tqdm
 from concurrent.futures import ThreadPoolExecutor
@@ -1054,61 +1054,61 @@ def display_images_in_grid(images, grid_size=6, convert_to_rgb=True):
     plt.show()
 
 
-def process_tile_image_tesseract(cur_tile_img, rotation_angles=[0, 90, 180, 270]):
-    """
-    This method will process a single tile image and return some information
-    about the predicted character for that tile. This method will use
-    Tesseract as the character recognition engine.
-    """
+# def process_tile_image_tesseract(cur_tile_img, rotation_angles=[0, 90, 180, 270]):
+#     """
+#     This method will process a single tile image and return some information
+#     about the predicted character for that tile. This method will use
+#     Tesseract as the character recognition engine.
+#     """
 
-    # Invert the image so that we're working on a white background
-    cur_tile_img = cv2.bitwise_not(cur_tile_img)
+#     # Invert the image so that we're working on a white background
+#     cur_tile_img = cv2.bitwise_not(cur_tile_img)
 
-    # Convert the image to a PIL image
-    cur_tile_pil_img = Image.fromarray(cur_tile_img)
+#     # Convert the image to a PIL image
+#     cur_tile_pil_img = Image.fromarray(cur_tile_img)
 
-    # Parallelize the processing of the tile image
-    futures = {}
-    with ThreadPoolExecutor(max_workers=4) as executor:
-        for rotation_angle in rotation_angles:
-            # Submit a future to the executor
-            futures[rotation_angle] = executor.submit(
-                pytesseract.image_to_data,
-                cur_tile_pil_img.rotate(rotation_angle),
-                output_type="data.frame",
-                config="--psm 10 --oem 2 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-            )
+#     # Parallelize the processing of the tile image
+#     futures = {}
+#     with ThreadPoolExecutor(max_workers=4) as executor:
+#         for rotation_angle in rotation_angles:
+#             # Submit a future to the executor
+#             futures[rotation_angle] = executor.submit(
+#                 pytesseract.image_to_data,
+#                 cur_tile_pil_img.rotate(rotation_angle),
+#                 output_type="data.frame",
+#                 config="--psm 10 --oem 2 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+#             )
 
-        # Now, we need to collect the results from the futures
-        results = {}
-        for rotation_angle, future in futures.items():
-            results[rotation_angle] = future.result()
+#         # Now, we need to collect the results from the futures
+#         results = {}
+#         for rotation_angle, future in futures.items():
+#             results[rotation_angle] = future.result()
 
-    # Now that we've collected the results, we'll need to return some information about the
-    # predicted characters for each rotation.
-    dfs_to_concat = []
-    for rotation_angle, df in results.items():
-        df["rotation_angle"] = rotation_angle
-        dfs_to_concat.append(df)
-    result_df = pd.concat(dfs_to_concat)
+#     # Now that we've collected the results, we'll need to return some information about the
+#     # predicted characters for each rotation.
+#     dfs_to_concat = []
+#     for rotation_angle, df in results.items():
+#         df["rotation_angle"] = rotation_angle
+#         dfs_to_concat.append(df)
+#     result_df = pd.concat(dfs_to_concat)
 
-    # Drop rows where the text is empty
-    result_df = result_df.dropna(subset=["text"])
+#     # Drop rows where the text is empty
+#     result_df = result_df.dropna(subset=["text"])
 
-    # Sort by the confidence score
-    result_df = result_df.sort_values(by="conf", ascending=False)
+#     # Sort by the confidence score
+#     result_df = result_df.sort_values(by="conf", ascending=False)
 
-    # Only include the relevant columns
-    result_df = result_df[["text", "conf", "rotation_angle"]]
+#     # Only include the relevant columns
+#     result_df = result_df[["text", "conf", "rotation_angle"]]
 
-    # Add a column indicating that we'd used Tesseract
-    result_df["method"] = "tesseract"
+#     # Add a column indicating that we'd used Tesseract
+#     result_df["method"] = "tesseract"
 
-    # Divide the confidence score by 100
-    result_df["conf"] = result_df["conf"] / 100
+#     # Divide the confidence score by 100
+#     result_df["conf"] = result_df["conf"] / 100
 
-    # Return the DataFrame
-    return result_df
+#     # Return the DataFrame
+#     return result_df
 
 
 def thinning(img):
@@ -1277,138 +1277,138 @@ def aggregate_prediction_results(result_df, min_prediction_confidence=0.75):
     return top_letter_prediction, top_rotation_angle
 
 
-def ocr_one_tile(
-    tile_img,
-    tile_idx,
-    special_tile_info,
-    engines_to_run=["tesseract", "easyocr"],
-    skeletonize=False,
-    easyocr_reader=None,
-):
-    """
-    This method will perform optical character recognition on
-    one of the tiles. This method expects three inputs:
+# def ocr_one_tile(
+#     tile_img,
+#     tile_idx,
+#     special_tile_info,
+#     engines_to_run=["tesseract", "easyocr"],
+#     skeletonize=False,
+#     easyocr_reader=None,
+# ):
+#     """
+#     This method will perform optical character recognition on
+#     one of the tiles. This method expects three inputs:
 
-    - `tile_img`: The image of the tile to perform OCR on
-    - `tile_idx`: The index of the tile in the board
-    - `special_tile_info`: A dictionary containing the special
-      tile information for the board. This is used to determine
-    """
+#     - `tile_img`: The image of the tile to perform OCR on
+#     - `tile_idx`: The index of the tile in the board
+#     - `special_tile_info`: A dictionary containing the special
+#       tile information for the board. This is used to determine
+#     """
 
-    # First, we're going to check whether or not the tile is a special tile
-    if tile_idx in special_tile_info["is_i"]:
-        return "I"
-    elif tile_idx in special_tile_info["is_block"]:
-        return "BLOCK"
+#     # First, we're going to check whether or not the tile is a special tile
+#     if tile_idx in special_tile_info["is_i"]:
+#         return "I"
+#     elif tile_idx in special_tile_info["is_block"]:
+#         return "BLOCK"
 
-    # Determine the angles of rotation we'll use when trying to OCR this tile
-    rotation_angles = [0, 90, 180, 270]
-    if tile_idx in special_tile_info["rotate_fixed"]:
-        rotation_angles = [special_tile_info["rotate_fixed"][tile_idx]]
+#     # Determine the angles of rotation we'll use when trying to OCR this tile
+#     rotation_angles = [0, 90, 180, 270]
+#     if tile_idx in special_tile_info["rotate_fixed"]:
+#         rotation_angles = [special_tile_info["rotate_fixed"][tile_idx]]
 
-    # If the user is interested in trying the skeletonized version of the image,
-    # skeletonize the image
-    if skeletonize:
-        skeletonized_img = thinning(tile_img)
+#     # If the user is interested in trying the skeletonized version of the image,
+#     # skeletonize the image
+#     if skeletonize:
+#         skeletonized_img = thinning(tile_img)
 
-    # We're going to run each of these engines in parallel to speed up the process
-    futures = {}
-    with ThreadPoolExecutor(max_workers=4) as executor:
-        # Now, we're going to iterate through the different OCR engines
-        if "tesseract" in engines_to_run:
-            futures["original_tesseract"] = executor.submit(
-                process_tile_image_tesseract, tile_img, rotation_angles
-            )
+#     # We're going to run each of these engines in parallel to speed up the process
+#     futures = {}
+#     with ThreadPoolExecutor(max_workers=4) as executor:
+#         # Now, we're going to iterate through the different OCR engines
+#         if "tesseract" in engines_to_run:
+#             futures["original_tesseract"] = executor.submit(
+#                 process_tile_image_tesseract, tile_img, rotation_angles
+#             )
 
-            # If the user is interested in trying the skeletonized version of the image,
-            # we'll run that as well
-            if skeletonize:
-                futures["skeletonized_tesseract"] = executor.submit(
-                    process_tile_image_tesseract, skeletonized_img, rotation_angles
-                )
+#             # If the user is interested in trying the skeletonized version of the image,
+#             # we'll run that as well
+#             if skeletonize:
+#                 futures["skeletonized_tesseract"] = executor.submit(
+#                     process_tile_image_tesseract, skeletonized_img, rotation_angles
+#                 )
 
-        # If the user is interested in trying the easyocr engine, we'll run that as well
-        if "easyocr" in engines_to_run:
-            futures["original_easyocr"] = executor.submit(
-                process_tile_image_easyocr, tile_img, rotation_angles, easyocr_reader
-            )
+#         # If the user is interested in trying the easyocr engine, we'll run that as well
+#         if "easyocr" in engines_to_run:
+#             futures["original_easyocr"] = executor.submit(
+#                 process_tile_image_easyocr, tile_img, rotation_angles, easyocr_reader
+#             )
 
-            # Add the skeletonized OCR to the list of futures if the user is interested
-            if skeletonize:
-                futures["skeletonized_easyocr"] = executor.submit(
-                    process_tile_image_easyocr,
-                    skeletonized_img,
-                    rotation_angles,
-                    easyocr_reader,
-                )
+#             # Add the skeletonized OCR to the list of futures if the user is interested
+#             if skeletonize:
+#                 futures["skeletonized_easyocr"] = executor.submit(
+#                     process_tile_image_easyocr,
+#                     skeletonized_img,
+#                     rotation_angles,
+#                     easyocr_reader,
+#                 )
 
-        # Now, we need to collect the results from the futures
-        results = {}
-        for rotation_angle, future in futures.items():
-            results[rotation_angle] = future.result()
+#         # Now, we need to collect the results from the futures
+#         results = {}
+#         for rotation_angle, future in futures.items():
+#             results[rotation_angle] = future.result()
 
-    # Now, collect all of the results
-    df_result_list = []
-    for key, future in futures.items():
-        img_type = key.split("_")[0]
-        df_result = future.result()
-        df_result["img_type"] = img_type
-        df_result_list.append(df_result)
+#     # Now, collect all of the results
+#     df_result_list = []
+#     for key, future in futures.items():
+#         img_type = key.split("_")[0]
+#         df_result = future.result()
+#         df_result["img_type"] = img_type
+#         df_result_list.append(df_result)
 
-    # Concatenate the results into a single dataframe
-    return pd.concat(df_result_list)
+#     # Concatenate the results into a single dataframe
+#     return pd.concat(df_result_list)
 
 
-def ocr_all_tiles(
-    extracted_tile_img_dict,
-    special_tile_info,
-    engines_to_run=["tesseract", "easyocr"],
-    skeletonize=False,
-    easyocr_reader=None,
-):
-    """
-    This method will OCR all of the tiles. By passing in an `extracted_tile_img_dict` that is
-    keyed with the tile index and has the tile image as the value, we can OCR all of the tiles.
+# def ocr_all_tiles(
+#     extracted_tile_img_dict,
+#     special_tile_info,
+#     engines_to_run=["tesseract", "easyocr"],
+#     skeletonize=False,
+#     easyocr_reader=None,
+# ):
+#     """
+#     This method will OCR all of the tiles. By passing in an `extracted_tile_img_dict` that is
+#     keyed with the tile index and has the tile image as the value, we can OCR all of the tiles.
 
-    This method will return a DataFrame with information about the predicted letter and rotation.
-    """
+#     This method will return a DataFrame with information about the predicted letter and rotation.
+#     """
 
-    # We're going to process each of the tiles in parallel
-    futures = {}
-    results = {}
-    with ThreadPoolExecutor(max_workers=4) as executor:
-        # Add futures for each tile to the dictionary
-        for tile_idx, tile_img in extracted_tile_img_dict.items():
-            futures[tile_idx] = executor.submit(
-                ocr_one_tile,
-                tile_img=tile_img,
-                tile_idx=tile_idx,
-                special_tile_info=special_tile_info,
-                engines_to_run=engines_to_run,
-                skeletonize=skeletonize,
-                easyocr_reader=easyocr_reader,
-            )
+#     # We're going to process each of the tiles in parallel
+#     futures = {}
+#     results = {}
+#     with ThreadPoolExecutor(max_workers=4) as executor:
+#         # Add futures for each tile to the dictionary
+#         for tile_idx, tile_img in extracted_tile_img_dict.items():
+#             futures[tile_idx] = executor.submit(
+#                 ocr_one_tile,
+#                 tile_img=tile_img,
+#                 tile_idx=tile_idx,
+#                 special_tile_info=special_tile_info,
+#                 engines_to_run=engines_to_run,
+#                 skeletonize=skeletonize,
+#                 easyocr_reader=easyocr_reader,
+#             )
 
-        # Now, iterate through all of the futures and wait for them to complete
-        for tile_idx, future in list(futures.items()):
-            results[tile_idx] = aggregate_prediction_results(
-                future.result(), min_prediction_confidence=0.4
-            )
+#         # Now, iterate through all of the futures and wait for them to complete
+#         for tile_idx, future in list(futures.items()):
+#             results[tile_idx] = aggregate_prediction_results(
+#                 future.result(), min_prediction_confidence=0.4
+#             )
 
-    # Finally, we're going to make a DataFrame of all of the tile prediction results
-    result_df = pd.DataFrame(
-        [
-            {
-                "tile_idx": tile_idx,
-                "letter": result_list[0],
-                "rotation_angle": result_list[1],
-            }
-            for tile_idx, result_list in results.items()
-        ]
-    )
+#     # Finally, we're going to make a DataFrame of all of the tile prediction results
+#     result_df = pd.DataFrame(
+#         [
+#             {
+#                 "tile_idx": tile_idx,
+#                 "letter": result_list[0],
+#                 "rotation_angle": result_list[1],
+#             }
+#             for tile_idx, result_list in results.items()
+#         ]
+#     )
 
-    # Return the result_df
-    return result_df
+#     # Return the result_df
+#     return result_df
 
 
 def parse_boggle_board(

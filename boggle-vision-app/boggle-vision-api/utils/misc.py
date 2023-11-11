@@ -11,7 +11,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 from statistics import mode
 import cv2
-import pytesseract
+# import pytesseract
 from PIL import Image
 from tqdm import tqdm
 from concurrent.futures import ThreadPoolExecutor
@@ -202,64 +202,64 @@ def hierarchy_to_dataframe(hierarchy):
     return df.drop_duplicates(subset=["contour_idx"])
 
 
-def process_tile_image_tesseract(cur_tile_img):
-    """
-    This method will process a single tile image and return some information
-    about the predicted character for that tile. This method will use
-    Tesseract as the character recognition engine.
-    """
+# def process_tile_image_tesseract(cur_tile_img):
+#     """
+#     This method will process a single tile image and return some information
+#     about the predicted character for that tile. This method will use
+#     Tesseract as the character recognition engine.
+#     """
 
-    # Make the image greyscale
-    # cur_tile_img = cv2.cvtColor(cur_tile_img, cv2.COLOR_BGR2GRAY)
+#     # Make the image greyscale
+#     # cur_tile_img = cv2.cvtColor(cur_tile_img, cv2.COLOR_BGR2GRAY)
 
-    # Invert the image
-    cur_tile_img = cv2.bitwise_not(cur_tile_img)
+#     # Invert the image
+#     cur_tile_img = cv2.bitwise_not(cur_tile_img)
 
-    # Convert the image to a PIL image
-    cur_tile_pil_img = Image.fromarray(cur_tile_img)
+#     # Convert the image to a PIL image
+#     cur_tile_pil_img = Image.fromarray(cur_tile_img)
 
-    # Parallelize the processing of the tile image
-    futures = {}
-    with ThreadPoolExecutor() as executor:
-        for rotation_angle in range(0, 360, 90):
-            # Submit a future to the executor
-            futures[rotation_angle] = executor.submit(
-                pytesseract.image_to_data,
-                cur_tile_pil_img.rotate(rotation_angle),
-                output_type="data.frame",
-                config="--psm 10 --oem 2 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-            )
+#     # Parallelize the processing of the tile image
+#     futures = {}
+#     with ThreadPoolExecutor() as executor:
+#         for rotation_angle in range(0, 360, 90):
+#             # Submit a future to the executor
+#             futures[rotation_angle] = executor.submit(
+#                 pytesseract.image_to_data,
+#                 cur_tile_pil_img.rotate(rotation_angle),
+#                 output_type="data.frame",
+#                 config="--psm 10 --oem 2 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+#             )
 
-        # Now, we need to collect the results from the futures
-        results = {}
-        for rotation_angle, future in futures.items():
-            results[rotation_angle] = future.result()
+#         # Now, we need to collect the results from the futures
+#         results = {}
+#         for rotation_angle, future in futures.items():
+#             results[rotation_angle] = future.result()
 
-    # Now that we've collected the results, we'll need to return some information about the
-    # predicted characters for each rotation.
-    dfs_to_concat = []
-    for rotation_angle, df in results.items():
-        df["rotation_angle"] = rotation_angle
-        dfs_to_concat.append(df)
-    result_df = pd.concat(dfs_to_concat)
+#     # Now that we've collected the results, we'll need to return some information about the
+#     # predicted characters for each rotation.
+#     dfs_to_concat = []
+#     for rotation_angle, df in results.items():
+#         df["rotation_angle"] = rotation_angle
+#         dfs_to_concat.append(df)
+#     result_df = pd.concat(dfs_to_concat)
 
-    # Drop rows where the text is empty
-    result_df = result_df.dropna(subset=["text"])
+#     # Drop rows where the text is empty
+#     result_df = result_df.dropna(subset=["text"])
 
-    # Sort by the confidence score
-    result_df = result_df.sort_values(by="conf", ascending=False)
+#     # Sort by the confidence score
+#     result_df = result_df.sort_values(by="conf", ascending=False)
 
-    # Only include the relevant columns
-    result_df = result_df[["text", "conf", "rotation_angle"]]
+#     # Only include the relevant columns
+#     result_df = result_df[["text", "conf", "rotation_angle"]]
 
-    # Add a column indicating that we'd used Tesseract
-    result_df["method"] = "tesseract"
+#     # Add a column indicating that we'd used Tesseract
+#     result_df["method"] = "tesseract"
 
-    # Divide the confidence score by 100
-    result_df["conf"] = result_df["conf"] / 100
+#     # Divide the confidence score by 100
+#     result_df["conf"] = result_df["conf"] / 100
 
-    # Return the DataFrame
-    return result_df
+#     # Return the DataFrame
+#     return result_df
 
 
 def process_tile_image_easyocr(cur_tile_img, reader):
@@ -362,101 +362,101 @@ def thinning(img):
     return thin
 
 
-def multi_engine_tile_processing(cur_tile_img, reader):
-    """
-    This method will run through OCR on the tile using a
-    variety of different methods (Tesseract, EasyOCR) and
-    a couple of different image processing techniques (base-image, thinning).
+# def multi_engine_tile_processing(cur_tile_img, reader):
+#     """
+#     This method will run through OCR on the tile using a
+#     variety of different methods (Tesseract, EasyOCR) and
+#     a couple of different image processing techniques (base-image, thinning).
 
-    It'll return a DataFrame with all of the predictions and their confidence levels.
-    """
+#     It'll return a DataFrame with all of the predictions and their confidence levels.
+#     """
 
-    # Use the thinning function to get the skeleton of the image
-    cur_tile_img_skeleton = thinning(cur_tile_img)
+#     # Use the thinning function to get the skeleton of the image
+#     cur_tile_img_skeleton = thinning(cur_tile_img)
 
-    # Execute the character recognition in parallel
-    futures = {}
-    with ThreadPoolExecutor() as executor:
-        futures["original_img_tesseract"] = executor.submit(
-            process_tile_image_tesseract, cur_tile_img
-        )
-        futures["skeleton_img_tesseract"] = executor.submit(
-            process_tile_image_tesseract, cur_tile_img_skeleton
-        )
-        futures["original_img_easyocr"] = executor.submit(
-            process_tile_image_easyocr, cur_tile_img, reader
-        )
-        futures["skeleton_img_easyocr"] = executor.submit(
-            process_tile_image_easyocr, cur_tile_img_skeleton, reader
-        )
+#     # Execute the character recognition in parallel
+#     futures = {}
+#     with ThreadPoolExecutor() as executor:
+#         futures["original_img_tesseract"] = executor.submit(
+#             process_tile_image_tesseract, cur_tile_img
+#         )
+#         futures["skeleton_img_tesseract"] = executor.submit(
+#             process_tile_image_tesseract, cur_tile_img_skeleton
+#         )
+#         futures["original_img_easyocr"] = executor.submit(
+#             process_tile_image_easyocr, cur_tile_img, reader
+#         )
+#         futures["skeleton_img_easyocr"] = executor.submit(
+#             process_tile_image_easyocr, cur_tile_img_skeleton, reader
+#         )
 
-    # Now, collect all of the results
-    df_result_list = []
-    for key, future in futures.items():
-        img_type = key.split("_")[0]
-        df_result = future.result()
-        df_result["img_type"] = img_type
-        df_result_list.append(df_result)
+#     # Now, collect all of the results
+#     df_result_list = []
+#     for key, future in futures.items():
+#         img_type = key.split("_")[0]
+#         df_result = future.result()
+#         df_result["img_type"] = img_type
+#         df_result_list.append(df_result)
 
-    # Concatenate the results into a single dataframe
-    return pd.concat(df_result_list)
+#     # Concatenate the results into a single dataframe
+#     return pd.concat(df_result_list)
 
 
-def aggregate_prediction_results(result_df, min_prediction_confidence=0.75):
-    """
-    This method will aggregate the prediction results from the
-    multi_engine_tile_processing method. It will return two things:
+# def aggregate_prediction_results(result_df, min_prediction_confidence=0.75):
+#     """
+#     This method will aggregate the prediction results from the
+#     multi_engine_tile_processing method. It will return two things:
 
-    1. The predicted tile character
-    2. The necessary rotation to make the tile upright
+#     1. The predicted tile character
+#     2. The necessary rotation to make the tile upright
 
-    If the tile is not a character, it will return None for both values
-    """
+#     If the tile is not a character, it will return None for both values
+#     """
 
-    # Aggregate the DataFrame
-    aggregated_result_df = (
-        result_df.query("conf >= @min_prediction_confidence")
-        .groupby("text")
-        .agg(
-            mean_conf=("conf", "mean"),
-            pred_ct=("conf", "count"),
-            angle_rotations=("rotation_angle", list),
-        )
-        .reset_index()
-    )
+#     # Aggregate the DataFrame
+#     aggregated_result_df = (
+#         result_df.query("conf >= @min_prediction_confidence")
+#         .groupby("text")
+#         .agg(
+#             mean_conf=("conf", "mean"),
+#             pred_ct=("conf", "count"),
+#             angle_rotations=("rotation_angle", list),
+#         )
+#         .reset_index()
+#     )
 
-    aggregated_result_df["weighted_conf"] = (
-        aggregated_result_df["mean_conf"] * aggregated_result_df["pred_ct"]
-    )
+#     aggregated_result_df["weighted_conf"] = (
+#         aggregated_result_df["mean_conf"] * aggregated_result_df["pred_ct"]
+#     )
 
-    aggregated_result_df = aggregated_result_df.sort_values(
-        "weighted_conf", ascending=False
-    )
+#     aggregated_result_df = aggregated_result_df.sort_values(
+#         "weighted_conf", ascending=False
+#     )
 
-    # Only show the letters that're in the allowed Boggle set
-    aggregated_result_df = aggregated_result_df[
-        aggregated_result_df["text"].isin(allowed_boggle_tiles)
-    ]
+#     # Only show the letters that're in the allowed Boggle set
+#     aggregated_result_df = aggregated_result_df[
+#         aggregated_result_df["text"].isin(allowed_boggle_tiles)
+#     ]
 
-    # If the length of the DataFrame is 0, then return None
-    if len(aggregated_result_df) == 0:
-        return None, None
+#     # If the length of the DataFrame is 0, then return None
+#     if len(aggregated_result_df) == 0:
+#         return None, None
 
-    # Determine the most confident letter prediction
-    top_letter_prediction = aggregated_result_df.iloc[0].text
+#     # Determine the most confident letter prediction
+#     top_letter_prediction = aggregated_result_df.iloc[0].text
 
-    # Determine the most confident rotation angle for the top letter prediction
-    top_rotation_angle = (
-        result_df.query("text==@top_letter_prediction")
-        .groupby("rotation_angle")
-        .agg({"conf": "mean"})
-        .reset_index()
-        .sort_values("conf", ascending=False)
-        .iloc[0]
-        .rotation_angle
-    )
+#     # Determine the most confident rotation angle for the top letter prediction
+#     top_rotation_angle = (
+#         result_df.query("text==@top_letter_prediction")
+#         .groupby("rotation_angle")
+#         .agg({"conf": "mean"})
+#         .reset_index()
+#         .sort_values("conf", ascending=False)
+#         .iloc[0]
+#         .rotation_angle
+#     )
 
-    return top_letter_prediction, top_rotation_angle
+#     return top_letter_prediction, top_rotation_angle
 
 
 def identify_underline_contours(input_img, input_hierarchy_df):

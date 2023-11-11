@@ -1,17 +1,17 @@
-# Start from the base image of Python
-FROM python:3.11
+# Use an official Python runtime as a parent image
+FROM pytorch/pytorch:latest
 
-# Set the working directory to /code
-WORKDIR /code
+# Set the working directory in the container
+WORKDIR /usr/src/app
 
-# Copy the requirements.txt file to /code
-COPY ./requirements.txt /code/requirements.txt
+# Copy the current directory contents into the container at /usr/src/app
+COPY . .
 
-# Install the requirements
-RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
+# Install any needed packages specified in requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the app directory to /code/app
-COPY ./app /code/app
+# Make port 8000 available to the world outside this container
+EXPOSE 8000
 
-# Run the command to start the server
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]
+# Run app.py when the container launches
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
