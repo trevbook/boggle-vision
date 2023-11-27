@@ -38,11 +38,17 @@ app.add_middleware(
 
 # Load in the CNN model
 net = BoggleCNN()
-net.load_state_dict(torch.load("models/boggle_cnn.pth", map_location=torch.device("cpu")))
+net.load_state_dict(
+    torch.load("models/boggle_cnn.pth", map_location=torch.device("cpu"))
+)
 
 # Load in the Boggle board point distribution
 with open("data/boggle-board-point-stats.json", "r") as json_file:
     boggle_board_point_stats = json.load(json_file)
+
+# Load in the word_to_definition.json file
+with open("data/word_to_definition.json", "r") as json_file:
+    word_to_definition = json.load(json_file)
 
 
 def hex_to_rgb(hex_color):
@@ -217,6 +223,20 @@ def solve_board(board_data: List[str]):
     }
 
 
+from pydantic import BaseModel
+
+
+class WordSchema(BaseModel):
+    word: str
+
+
+@app.post("/define_word")
+def define_word(word_data: WordSchema):
+    word = word_data.word
+    definition = word_to_definition.get(word, None)
+    return definition
+
+
 # The following endpoint is a POST endpoint that will
 # take in data and then return the JSON representation
 # of that data.
@@ -244,7 +264,7 @@ def analyze_image(data: dict):
         cropped_board_img,
         tile_contours_df,
         letter_activation_visualization_list,
-        canny_edge_visualization
+        canny_edge_visualization,
     ) = board_detect.parse_boggle_board(
         input_image=image,
         max_image_height=1200,
@@ -254,10 +274,10 @@ def analyze_image(data: dict):
             "cropped_image",
             "tile_contours",
             "activation_visualization",
-            "canny_edge_visualization"
+            "canny_edge_visualization",
         ],
     )
-    
+
     print(f"type of canny_edge_visualization is {type(canny_edge_visualization)}")
 
     # Use the generate_activation_heatmap_filter to generate an activation heatmap of the board
@@ -269,11 +289,11 @@ def analyze_image(data: dict):
             for row in tile_contours_df.itertuples()
         },
     )
-    
+
     # Encode this activation heatmap as a base64 string
     _, buffer = cv2.imencode(".png", activation_heatmap_img)
     activation_heatmap_img_str = base64.b64encode(buffer.tobytes()).decode("utf-8")
-    
+
     # Turn the canny_edge_visualization into a base64 string
     _, buffer = cv2.imencode(".png", canny_edge_visualization)
     canny_edge_visualization_str = base64.b64encode(buffer.tobytes()).decode("utf-8")
@@ -319,5 +339,5 @@ def analyze_image(data: dict):
         "cropped_board_height": cropped_board_height,
         "letter_activation_visualization_list": letter_activation_viz_strings,
         "activation_heatmap": activation_heatmap_img_str,
-        "canny_edge_visualization": canny_edge_visualization_str
+        "canny_edge_visualization": canny_edge_visualization_str,
     }
