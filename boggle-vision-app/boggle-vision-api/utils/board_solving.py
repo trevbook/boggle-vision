@@ -52,8 +52,10 @@ def score_boggle_word(word):
         return 3
     elif len(word) == 7:
         return 5
-    else:
+    elif len(word) == 8:
         return 11
+    elif len(word) > 8:
+        return 2 * len(word)
 
 
 # Check if a position is within the Boggle board

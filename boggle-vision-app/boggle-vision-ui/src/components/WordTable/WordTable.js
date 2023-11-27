@@ -10,7 +10,11 @@
 import React, { useRef, useState, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
-import { MantineReactTable, useMantineReactTable } from "mantine-react-table";
+import {
+  MRT_Table,
+  MantineReactTable,
+  useMantineReactTable,
+} from "mantine-react-table";
 import { setSelectedWordIndex } from "../../slices/userControlSlice";
 import "./WordTable.css";
 
@@ -48,34 +52,6 @@ const WordTable = (props) => {
   const table = useMantineReactTable({
     columns,
     data: props.wordsTableData,
-    state: {
-      pageSize: 40,
-    },
-    mantinePaperProps: {
-      shadow: "none",
-      sx: {
-        borderRadius: "0",
-        border: "none",
-      },
-      "elevation": 0
-    },
-    mantineTableHeadCellProps: {
-      align: "center",
-      sx: {
-        paddingLeft: "0px"
-      }
-    },
-    mantineTableHeadRowProps: {
-      sx: {
-        borderBottom: "1px solid orange",
-      },
-    },
-    mantineTableProps: {
-      sx: {
-        border: "none"
-      },
-    },
-    mantinePaperProps: {},
     mantineTableBodyRowProps: ({ row }) => ({
       // Define a click event that handles a user clicking on a row.
       onClick: (event) => {
@@ -91,13 +67,31 @@ const WordTable = (props) => {
           backgroundColor: "#e0e0e0",
           cursor: "pointer",
         },
-        border: "none",
       },
     }),
-    initialState: { density: "xs", pageSize: 40 },
-    style: { width: "100%" },
-    sx: {
-      tableLayout: "fixed",
+    enableColumnActions: false,
+    enableColumnFilters: false,
+    enablePagination: false,
+    enableSorting: false,
+    mantineTableHeadCellProps: {
+      align: "center",
+      style: {
+        fontWeight: "bold",
+        fontSize: "1.4rem",
+      },
+    },
+    mantineTableProps: {
+      highlightOnHover: true,
+      withColumnBorders: true,
+      withBorder: false,
+      style: {
+        "--header-word-size": 0,
+        "--col-word-size": 0,
+        "--header-length-size": 0,
+        "--col-length-size": 0,
+        "--header-points-size": 0,
+        "--col-points-size": 0,
+      },
     },
   });
 
@@ -107,7 +101,7 @@ const WordTable = (props) => {
       {columns === null || props.wordsTableData === null ? (
         <div />
       ) : (
-        <MantineReactTable table={table} />
+        <MRT_Table table={table} />
       )}
     </div>
   );

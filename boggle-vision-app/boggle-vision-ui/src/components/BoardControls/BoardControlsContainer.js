@@ -22,6 +22,7 @@ import {
   toggleLetterOverlay,
 } from "../../slices/userControlSlice";
 import FiltersModalContent from "./FiltersModal/FiltersModalContent";
+import "./BoardControls.css"
 
 // ==============================================================
 //                        COMPONENT DEFINITION
@@ -77,8 +78,7 @@ const BoardControlsContainer = () => {
       <Modal
         opened={filtersModalOpen}
         onClose={() => setFiltersModalOpen(false)}
-        title="Image Filters"
-        size="70%"
+        size="85%"
       >
         <FiltersModalContent />
       </Modal>

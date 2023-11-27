@@ -490,6 +490,7 @@ def detect_tile_contours(
     max_tile_area_percentage=0.02,
     tile_size_difference_threshold=0.3,
     polygon_approximation_epsilon=0.02,
+    return_binary_image=False
 ):
     """
     This method will detect the contours of the tiles in the top-down board image.
@@ -678,7 +679,10 @@ def detect_tile_contours(
     )
 
     # Return the tile contours DataFrame
-    return tile_contours_df
+    if not return_binary_image:
+        return tile_contours_df
+    else:
+        return tile_contours_df, binary_image
 
 
 def identify_underline_contours(
@@ -1619,3 +1623,7 @@ def ocr_all_tiles_cnn(
     # Otherwise, we'll return both
     else:
         return tile_ocr_results_df, activation_visualizations
+
+
+
+

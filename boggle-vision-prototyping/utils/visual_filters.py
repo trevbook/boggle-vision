@@ -97,3 +97,46 @@ def generate_activation_heatmap_filter(
 
     # Return the greyscale image
     return greyscale_img
+
+
+def apply_canny_edge_detection(
+    img,
+    resize_height=750,
+    return_original=False,
+    thicken_edges=True,
+    edge_thickness_kernel_size=3,
+):
+    """
+    Apply Canny Edge Detection to an image, with options to resize, return original, and thicken edges.
+
+    :param img: Input image as a NumPy array.
+    :param resize_height: Height to resize the image to, maintaining aspect ratio.
+    :param return_original: Whether to return the original image along with the edges.
+    :param thicken_edges: Whether to thicken the edges in the output.
+    :return: Edges, or edges with original image depending on 'return_original'.
+    """
+
+    # Resize the image if necessary
+    if resize_height is not None and img.shape[0] >= resize_height:
+        scale = resize_height / img.shape[0]
+        img = cv2.resize(img, (0, 0), fx=scale, fy=scale)
+
+    # Convert to grayscale and apply Gaussian blur
+    img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    img_blur = cv2.GaussianBlur(img_gray, (3, 3), 0)
+
+    # Canny Edge Detection
+    edges = cv2.Canny(image=img_blur, threshold1=100, threshold2=200)
+
+    # Thicken the edges if requested
+    if thicken_edges:
+        kernel = np.ones(
+            (edge_thickness_kernel_size, edge_thickness_kernel_size), np.uint8
+        )  # You can adjust the kernel size for different thickness
+        edges = cv2.dilate(edges, kernel, iterations=1)
+
+    # Return the resulting image
+    if return_original:
+        return edges, img
+    else:
+        return edges

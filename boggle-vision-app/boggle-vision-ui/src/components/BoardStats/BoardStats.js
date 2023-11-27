@@ -68,16 +68,14 @@ const BoardStats = () => {
   return (
     <div
       style={{
-        margin: "20px",
         width: "100%",
         wordWrap: "break-word",
         textAlign: "left",
-        "paddingRight": "10px"
       }}
     >
       {boardStats ? (
         <>
-          <div style={{ marginBottom: "30px" }}>
+          <div style={{ marginBottom: "00px" }}>
             <Grid>
               <Grid.Col span={6}>
                 <Metric
@@ -108,7 +106,7 @@ const BoardStats = () => {
 
               <Grid.Col span={6}>
                 <Metric
-                  header="Avg. Points/Word"
+                  header="PPW"
                   value={avgPointsPerWord}
                   color={boardStats.avg_points_per_word_color}
                   //   explanationText={getZScoreText(

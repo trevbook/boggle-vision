@@ -11,7 +11,7 @@ import { Card, Col, Grid, Text, UnstyledButton } from "@mantine/core";
 import React, { useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import SelectedWordInfoContent from "./SelectedWordInfoContent";
-import "./SelectedWordInfoPanel.css"
+import "./SelectedWordInfoPanel.css";
 
 // ==============================================================
 //                        COMPONENT DEFINITION
@@ -22,13 +22,15 @@ import "./SelectedWordInfoPanel.css"
  * A component that contains the SelectedWordInfoPanel.
  */
 const SelectedWordInfoPanel = () => {
-  const selected_word_index = useSelector((state) => state.userControl.selected_word_index);
-  const panelClass = selected_word_index !== null ? 'panelVisible' : 'panelHidden';
+  const selected_word_index = useSelector(
+    (state) => state.userControl.selected_word_index
+  );
+  const panelClass =
+    selected_word_index !== null ? "panelVisible" : "panelHidden";
 
   return (
     <div className={`selectedWordInfoPanel ${panelClass}`}>
-      <Card shadow="sm" radius="md" style={{ height: '100px', "border": "2px solid blue", 
-    "textAlign": "left"}}>
+      <Card style={{ height: 150, border: "2px solid orange" }}>
         <SelectedWordInfoContent />
       </Card>
     </div>

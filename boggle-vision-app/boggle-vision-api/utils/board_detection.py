@@ -17,6 +17,7 @@ import numpy as np
 from statistics import mode
 import utils
 import cv2
+
 # import pytesseract
 from PIL import Image
 from tqdm import tqdm
@@ -32,6 +33,7 @@ from torchvision.io import read_image
 # Custom-built modules and settings
 from utils.settings import allowed_boggle_tiles
 from utils.cnn import SaveFeatures
+from utils.visual_filters import apply_canny_edge_detection
 
 
 # =================================================
@@ -1477,6 +1479,16 @@ def parse_boggle_board(
         tile_size_difference_threshold=tile_size_difference_threshold,
     )
 
+    # If "canny_edge_visualization" is in the return_list, we'll return that here
+    if "canny_edge_visualization" in return_list:
+        canny_edges = apply_canny_edge_detection(
+            top_down_board_image,
+            resize_height=None,
+        )
+    # Otherwise, we'll set this to None
+    else:
+        canny_edges = None
+
     # STEP 4: TILE IMAGE EXTRACTION
     # ====================================================
 
@@ -1532,6 +1544,7 @@ def parse_boggle_board(
         "tile_contours": tile_contours_df,
         "tile_images": extracted_tile_img_dict,
         "activation_visualization": activation_visualizations,
+        "canny_edge_visualization": canny_edges,
     }
     return [return_list_key_to_value[key] for key in return_list]
 
@@ -1591,13 +1604,13 @@ def ocr_all_tiles_cnn(
             ).squeeze()
             activation_visualization = np.maximum(activation_visualization, 0)
             activation_visualization /= np.max(activation_visualization)
-            
+
             # Normalize the numpy array and convert to 8-bit integer
             activation_visualization = (activation_visualization * 255).astype(np.uint8)
-            
+
             # Convert to a list
             # activation_visualization = activation_visualization.tolist()
-            
+
             # Append to the list of visualizations
             activation_visualizations.append(activation_visualization)
 

@@ -18,6 +18,19 @@ function MainPage() {
         <Grid.Col span={12}>
           {/* Header */}
           <div style={{ fontSize: "30px", fontWeight: "bold" }}>
+            {/* 
+          
+            <img
+              src="/images/logo.png"
+              alt="A Boggle board with no filter applied."
+              style={{
+                display: "block",
+                marginLeft: "auto",
+                marginRight: "auto",
+                width: 300
+              }}
+            />
+          */}
             Boggle Vision
           </div>
         </Grid.Col>
@@ -46,7 +59,7 @@ function MainPage() {
               </Grid.Col>
               <Grid.Col span={12}>
                 {/* Word Table */}
-                <div>
+                <div style={{ width: "100%" }}>
                   <WordTableContainer />
                 </div>
                 <div
@@ -55,7 +68,7 @@ function MainPage() {
                     flexDirection: "row",
                     justifyContent: "center",
                     // alignItems: "center",
-                    "width": "100%"
+                    width: "100%",
                   }}
                 >
                   <SelectedWordInfoPanel />

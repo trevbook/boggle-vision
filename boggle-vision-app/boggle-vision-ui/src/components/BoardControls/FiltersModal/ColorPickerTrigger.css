@@ -1,0 +1,18 @@
+.color-picker-label {
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.popover-centered {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: 100% !important; /* Ensure the popover takes the full width */
+  max-width: 500px; /* Adjust this value as needed */
+}
+
+.color-picker-container {
+  width: 80%; /* The ColorPicker will take up 80% of the popover width */
+  margin: auto; /* Center the ColorPicker within the popover */
+}

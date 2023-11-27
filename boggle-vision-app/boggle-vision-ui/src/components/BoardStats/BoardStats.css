@@ -1,19 +1,19 @@
 /* Below, you'll find some styling for the BoardStats component. */
 
 .board-stats-metric-container {
-  margin-bottom: 20px;
+  margin-bottom: 5px;
 }
 
 .board-stats-metric-header {
   font-weight: bold;
-  font-size: 1.75rem;
+  font-size: 1.4rem;
   word-break: break-word;
   word-wrap: break-word;
   width: 100%
 }
 
 .board-stats-metric-value {
-  font-size: 2.25rem;
+  font-size: 1.2rem;
   font-weight: 700;
 }
 

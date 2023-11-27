@@ -133,7 +133,7 @@ def solve_board(board_data: List[str]):
     total_points = int(solved_boggle_board_df["points"].sum())
 
     # Determine the number of 11-point words
-    num_eleven_point_words = int((solved_boggle_board_df["points"] == 11).sum())
+    num_eleven_point_words = int((solved_boggle_board_df["points"] >= 11).sum())
 
     # Determine the number of words
     num_words = len(solved_boggle_board_df)
@@ -244,6 +244,7 @@ def analyze_image(data: dict):
         cropped_board_img,
         tile_contours_df,
         letter_activation_visualization_list,
+        canny_edge_visualization
     ) = board_detect.parse_boggle_board(
         input_image=image,
         max_image_height=1200,
@@ -253,8 +254,11 @@ def analyze_image(data: dict):
             "cropped_image",
             "tile_contours",
             "activation_visualization",
+            "canny_edge_visualization"
         ],
     )
+    
+    print(f"type of canny_edge_visualization is {type(canny_edge_visualization)}")
 
     # Use the generate_activation_heatmap_filter to generate an activation heatmap of the board
     activation_heatmap_img = generate_activation_heatmap_filter(
@@ -269,6 +273,10 @@ def analyze_image(data: dict):
     # Encode this activation heatmap as a base64 string
     _, buffer = cv2.imencode(".png", activation_heatmap_img)
     activation_heatmap_img_str = base64.b64encode(buffer.tobytes()).decode("utf-8")
+    
+    # Turn the canny_edge_visualization into a base64 string
+    _, buffer = cv2.imencode(".png", canny_edge_visualization)
+    canny_edge_visualization_str = base64.b64encode(buffer.tobytes()).decode("utf-8")
 
     # Determine the width and height of the cropped_board_img
     cropped_board_height, cropped_board_width = cropped_board_img.shape[:2]
@@ -310,5 +318,6 @@ def analyze_image(data: dict):
         "cropped_board_width": cropped_board_width,
         "cropped_board_height": cropped_board_height,
         "letter_activation_visualization_list": letter_activation_viz_strings,
-        "activation_heatmap": activation_heatmap_img_str
+        "activation_heatmap": activation_heatmap_img_str,
+        "canny_edge_visualization": canny_edge_visualization_str
     }

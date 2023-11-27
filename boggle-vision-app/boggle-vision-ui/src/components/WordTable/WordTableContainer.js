@@ -46,7 +46,7 @@ const WordTableContainer = (props) => {
       const endpointURL =
         window.location.hostname === "localhost"
           ? "http://127.0.0.1:8000/solve_board"
-          : "http://192.168.1.159:8000/solve_board";
+          : "http://10.0.0.48:8000/solve_board";
 
       // Send the board data to the server.
       axios
