@@ -12,6 +12,7 @@ import React, { useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import SelectedWordInfoContent from "./SelectedWordInfoContent";
 import "./SelectedWordInfoPanel.css";
+import SelectedWordInfoControls from "./SelectedWordInfoControls";
 
 // ==============================================================
 //                        COMPONENT DEFINITION
@@ -30,8 +31,43 @@ const SelectedWordInfoPanel = () => {
 
   return (
     <div className={`selectedWordInfoPanel ${panelClass}`}>
-      <Card style={{ height: 150, border: "2px solid orange" }}>
-        <SelectedWordInfoContent />
+      <Card style={{ height: 175 }}>
+        <Grid style={{ height: "100%" }}>
+          <Col span={6} style={{ paddingRight: "10px" }}>
+            <SelectedWordInfoContent />
+          </Col>
+          <Col span={6}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                height: "100%",
+              }}
+            >
+              <div
+                style={{
+                  flex: 1,
+
+                  justifyContent: "center",
+                  alignItems: "center",
+                  display: "flex",
+                }}
+              >
+                Stats go here
+              </div>
+              <div
+                style={{
+                  flex: 1,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  display: "flex",
+                }}
+              >
+                <SelectedWordInfoControls />
+              </div>
+            </div>
+          </Col>
+        </Grid>
       </Card>
     </div>
   );

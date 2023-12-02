@@ -103,7 +103,7 @@ const WordOverlay = (props) => {
 
       // Close the path and stroke, making sure that the background of each square is black
       ctx.closePath();
-      ctx.strokeStyle = "rgb(235, 52, 235)";
+      ctx.strokeStyle = "blue"
       ctx.lineWidth = 5;
       ctx.stroke();
     });

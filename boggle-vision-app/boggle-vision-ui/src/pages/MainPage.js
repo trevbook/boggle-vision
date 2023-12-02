@@ -13,11 +13,11 @@ function MainPage() {
   const boardDataSlice = useSelector((state) => state.boardData);
 
   return (
-    <div style={{ padding: "10px", textAlign: "center" }}>
+    <div style={{ padding: "10px", }}>
       <Grid>
         <Grid.Col span={12}>
           {/* Header */}
-          <div style={{ fontSize: "30px", fontWeight: "bold" }}>
+          <div style={{ fontSize: "30px", fontWeight: "bold", textAlign: "center" }}>
             {/* 
           
             <img

@@ -47,7 +47,7 @@ const ImageProcessingNotice = () => {
       const endpointURL =
         window.location.hostname === "localhost"
           ? "http://127.0.0.1:8000/analyze_image"
-          : "http://10.0.0.48:8000/analyze_image";
+          : "http://192.168.1.159:8000/analyze_image";
 
       // Send the image to the server.
       axios

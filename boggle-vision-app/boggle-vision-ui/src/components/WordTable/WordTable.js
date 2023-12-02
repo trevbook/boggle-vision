@@ -78,6 +78,7 @@ const WordTable = (props) => {
       style: {
         fontWeight: "bold",
         fontSize: "1.4rem",
+        color: "#2c2c2c"
       },
     },
     mantineTableProps: {
@@ -91,6 +92,7 @@ const WordTable = (props) => {
         "--col-length-size": 0,
         "--header-points-size": 0,
         "--col-points-size": 0,
+        "--header-word-color": "black",
       },
     },
   });

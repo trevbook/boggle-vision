@@ -1,15 +1,26 @@
 /* Below, you'll find some styling for the BoardStats component. */
 
+
+/* Center everything horizontally */
 .board-stats-metric-container {
   margin-bottom: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  text-align: center;
+  margin-bottom: 30px;
 }
 
 .board-stats-metric-header {
   font-weight: bold;
-  font-size: 1.4rem;
+  font-size: 1.5rem;
   word-break: break-word;
   word-wrap: break-word;
-  width: 100%
+  width: 100%;
+  color: #2c2c2c
 }
 
 .board-stats-metric-value {

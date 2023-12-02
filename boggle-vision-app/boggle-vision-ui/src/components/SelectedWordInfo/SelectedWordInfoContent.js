@@ -94,7 +94,7 @@ const SelectedWordInfoContent = () => {
     const endpointURL =
       window.location.hostname === "localhost"
         ? "http://127.0.0.1:8000/define_word"
-        : "http://10.0.0.48:8000/define_word";
+        : "http://192.168.1.159:8000/define_word";
 
     // Send the word to the server.
     axios
@@ -103,8 +103,7 @@ const SelectedWordInfoContent = () => {
         // Unpack the data from the response.
         if (response.data === null) {
           setWordDefinition("no definition found");
-        }
-        else {
+        } else {
           setWordDefinition(response.data.definition);
         }
       })
@@ -123,8 +122,8 @@ const SelectedWordInfoContent = () => {
   return (
     <div>
       <div>
-        <Text>Selected Word: {selectedWord}</Text>
-        <Text>Definition: {wordDefinition}</Text>
+        <div className="selected-word">{selectedWord}</div>
+        <div className="selected-word-definition">{wordDefinition}</div>
       </div>
     </div>
   );
