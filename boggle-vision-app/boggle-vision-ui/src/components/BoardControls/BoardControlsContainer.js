@@ -36,7 +36,7 @@ const styles = {
     width: "100%",
     display: "flex",
     justifyContent: "space-between",
-    // textAlign: "center",
+    textAlign: "center",
     paddingBottom: "10px",
     height: 75,
     backgroundColor: "white",
