@@ -62,34 +62,6 @@ const SelectedWordInfoContent = () => {
       return;
     }
 
-    // AS FOLLOWS IS SOME EXAMPLE CODE:
-    //     // Otherwise, we're going to ping the solve_board endpoint.
-    //     const endpointURL =
-    //     window.location.hostname === "localhost"
-    //       ? "http://127.0.0.1:8000/solve_board"
-    //       : "http://10.0.0.48:8000/solve_board";
-
-    //   // Send the board data to the server.
-    //   axios
-    //     .post(endpointURL, boardDataSlice.boardData.letter_sequence)
-    //     .then((response) => {
-    //       // Unpack the data from the response
-    //       const words_table_data = response.data.solved_board;
-    //       const board_stats = response.data.board_stats;
-    //       const word_id_to_path = response.data.word_id_to_path;
-
-    //       // Set the solved board data.
-    //       dispatch(setWordsTableData(words_table_data));
-    //       dispatch(setBoardStats(board_stats));
-    //       dispatch(setWordToLetterContourPath(word_id_to_path));
-    //     })
-    //     .catch((error) => {
-    //       dispatch(setWordsTableData(null));
-    //       dispatch(setBoardStats(null));
-    //     })
-    //     .finally(() => {});
-    // }
-
     // Otherwise, we're going to ping the define_word endpoint.
     const endpointURL =
       window.location.hostname === "localhost"
@@ -108,7 +80,6 @@ const SelectedWordInfoContent = () => {
         }
       })
       .catch((error) => {
-        console.log(error);
         setWordDefinition("error fetching definition");
       })
       .finally(() => {});

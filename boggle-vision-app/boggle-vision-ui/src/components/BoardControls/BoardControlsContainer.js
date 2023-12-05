@@ -22,7 +22,7 @@ import {
   toggleLetterOverlay,
 } from "../../slices/userControlSlice";
 import FiltersModalContent from "./FiltersModal/FiltersModalContent";
-import "./BoardControls.css"
+import "./BoardControls.css";
 
 // ==============================================================
 //                        COMPONENT DEFINITION
@@ -51,7 +51,7 @@ const styles = {
   },
   iconDescription: {
     marginTop: "5px",
-    fontSize: "0.9rem",
+    fontSize: "0.85rem",
     fontWeight: 600,
   },
 };
@@ -90,16 +90,16 @@ const BoardControlsContainer = () => {
             onClick: () => {
               setFiltersModalOpen(true);
             },
-            description: "Image Filters",
+            description: "Filters",
           },
-          {
-            icon: "mdi:eraser",
-            onClick: () => {
-              dispatch(setSelectedWordIndex(null));
-            },
-            color: selected_word_index === null ? "grey" : "pink",
-            description: "Erase",
-          },
+          // {
+          //   icon: "mdi:eraser",
+          //   onClick: () => {
+          //     dispatch(setSelectedWordIndex(null));
+          //   },
+          //   color: selected_word_index === null ? "grey" : "pink",
+          //   description: "Erase",
+          // },
           {
             icon: show_letter_overlay
               ? "mdi:alphabetical"
@@ -108,7 +108,7 @@ const BoardControlsContainer = () => {
             onClick: () => {
               dispatch(toggleLetterOverlay(true));
             },
-            description: show_letter_overlay ? "Letters" : "Letters",
+            description: "Letters",
           },
           // {
           //   icon: "mdi:rotate-left-variant",
@@ -119,7 +119,7 @@ const BoardControlsContainer = () => {
             icon: "mdi:pencil-outline",
             color: "black",
             onClick: open,
-            description: "Edit Board",
+            description: "Edit",
           },
           {
             icon: "mdi:close-thick",
@@ -131,10 +131,9 @@ const BoardControlsContainer = () => {
                 dispatch(setBoardImages(null));
                 dispatch(setBoardData(null));
                 dispatch(setBoardStats(null));
-              })
-              
+              });
             },
-            description: "Clear Board",
+            description: "Clear",
           },
         ].map(({ icon, color, onClick, description }, idx) => (
           <div key={idx} style={styles.iconContainer}>

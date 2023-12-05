@@ -10,6 +10,7 @@ export const boardDataSlice = createSlice({
     wordsTableData: null,
     boardStats: null,
     letterSequence: null,
+    n_words: null
   },
 
   // Define the reducers that'll deal with the board data
@@ -22,6 +23,7 @@ export const boardDataSlice = createSlice({
     // This function will set the words table data
     setWordsTableData: (state, action) => {
       state.wordsTableData = action.payload;
+      state.n_words = action.payload.length
     },
 
     // This function will set the board stats

@@ -64,9 +64,6 @@ const ColorPickerTrigger = ({ label, color, onChange }) => {
                 border: "2px solid black",
               }}
               onClick={(event) => {
-                console.log(
-                  `the circle was clicked. opened is ${opened}, so we'll set it to ${!opened}`
-                );
                 //   event.stopPropagation();
                 // setOpened((o) => !o);
               }}

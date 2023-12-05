@@ -74,8 +74,6 @@ const FilterOverlay = (props) => {
     const canny_edge = boardImages.canny_edge_viz;
     const new_canny_edge_image = new Image();
     new_canny_edge_image.src = `data:image/png;base64,${canny_edge}`
-    console.log("setting the canny_edge_image to the following base-64 .png string:")
-    console.log(`data:image/png;base64,${canny_edge}`)
     new_canny_edge_image.onload = () => {
       set_canny_edge_image(new_canny_edge_image)
     }
@@ -113,7 +111,6 @@ const FilterOverlay = (props) => {
       // Determine the primary and secondary colors
       var primaryRgb = "rgb(255, 255, 255)";
       if (featureActivationsFilterPrimaryColor) {
-        console.log(`changing the primaryRgb`)
         primaryRgb = hexToRgb(featureActivationsFilterPrimaryColor);
       }
       var secondaryRgb = "rgb(0, 0, 0)";
@@ -154,7 +151,6 @@ const FilterOverlay = (props) => {
       // Determine the primary and secondary colors
       var primaryRgb = "rgb(255, 255, 255)";
       if (cannyEdgeFilterPrimaryColor) {
-        console.log(`changing the primaryRgb`)
         primaryRgb = hexToRgb(cannyEdgeFilterPrimaryColor);
       }
       var secondaryRgb = "rgb(0, 0, 0)";
@@ -179,7 +175,6 @@ const FilterOverlay = (props) => {
       
       // Put the image data back after manipulation
       ctx.putImageData(imageData, 0, 0);
-      console.log("drew the image");
     }
 
 

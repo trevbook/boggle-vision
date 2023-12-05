@@ -165,3 +165,6 @@ models/*
 
 # Don't include PyTorch models
 *.pth
+boggle-vision-app/boggle-vision-api/utils/allowed-words-trie.json
+boggle-vision-app/boggle-vision-api/data/word_to_definition.json
+boggle-vision-prototyping/utils/allowed-words-trie.json
