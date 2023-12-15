@@ -6,7 +6,7 @@ import { Grid } from "@mantine/core";
 import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 
-const ANIMATION_DELAY_PER_TILE = 130;
+const ANIMATION_DELAY_PER_TILE = 145;
 
 // Now: we're going to define the WordOverlay component!
 const WordOverlay = (props) => {
@@ -129,7 +129,7 @@ const WordOverlay = (props) => {
           imageWidthScale,
           imageHeightScale,
           selected_word_rarity_color,
-          8
+          14
         );
       }, index * ANIMATION_DELAY_PER_TILE); // 500ms delay between each tile
 
