@@ -101,7 +101,7 @@ const TileOverlay = (props) => {
 
       // Close the path and stroke, making sure that the background of each square is black
       ctx.closePath();
-      ctx.strokeStyle = "#13fc03";
+      ctx.strokeStyle = "white";
       ctx.lineWidth = 3;
       ctx.stroke();
       ctx.fillStyle = "rgba(0, 0, 0, 0.55)";
@@ -119,7 +119,7 @@ const TileOverlay = (props) => {
       const textHeight = 45; // Since the font size is set to 60px
       ctx.font = `bold ${textHeight}px Arial`;
 
-      ctx.fillStyle = "#13fc03";
+      ctx.fillStyle = "white";
       // Calculate the width and height of the text
       const textWidth = ctx.measureText(letter).width;
 

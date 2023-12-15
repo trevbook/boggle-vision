@@ -194,7 +194,7 @@ const FiltersModalContent = () => {
     <div id="overarching">
       <Grid style={{ alignItems: "stretch" }}>
         {/* NO FILTER */}
-        <Col span={6}>
+        <Col span={12}>
           <CardButton
             onClick={() => {
               dispatch(setCurrentVisualFilter(null));
@@ -208,7 +208,7 @@ const FiltersModalContent = () => {
                 display: "block",
                 marginLeft: "auto",
                 marginRight: "auto",
-                width: "100%",
+                width: "50%",
                 marginBottom: "10px",
               }}
             />
@@ -221,7 +221,7 @@ const FiltersModalContent = () => {
         </Col>
 
         {/* ACTIVATION HEATMAP FILTER */}
-        <Col span={6}>
+        <Col span={12}>
           <CardButton
             onClick={() => {
               dispatch(setCurrentVisualFilter("feature_activations"));
@@ -235,7 +235,7 @@ const FiltersModalContent = () => {
                 display: "block",
                 marginLeft: "auto",
                 marginRight: "auto",
-                width: "100%",
+                width: "50%",
                 marginBottom: "10px",
               }}
             />
@@ -273,7 +273,7 @@ const FiltersModalContent = () => {
         </Col>
 
         {/* CANNY EDGE DETECTION FILTER */}
-        <Col span={6}>
+        <Col span={12}>
           <CardButton
             onClick={() => {
               dispatch(setCurrentVisualFilter("canny_edge"));
@@ -287,7 +287,7 @@ const FiltersModalContent = () => {
                 display: "block",
                 marginLeft: "auto",
                 marginRight: "auto",
-                width: "100%",
+                width: "50%",
                 marginBottom: "10px",
               }}
             />

@@ -7,13 +7,15 @@
 // The following are imports of modules and components that are required to make this component work.
 
 // Import statements for this file
-import { Card, Col, Grid, Text, UnstyledButton } from "@mantine/core";
+import { Card, Col, Grid, Modal, Text, UnstyledButton } from "@mantine/core";
 import React, { useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import SelectedWordInfoContent from "./SelectedWordInfoContent";
 import "./SelectedWordInfoPanel.css";
 import { Icon } from "@iconify/react";
 import { setSelectedWordIndex } from "../../slices/userControlSlice";
+import WordStatsInfoModalContent from "./WordStatsInfoModalContent";
+import { useDisclosure } from "@mantine/hooks";
 
 // ==============================================================
 //                        COMPONENT DEFINITION
@@ -35,6 +37,8 @@ const SelectedWordInfoControls = () => {
   // Set up a dispatch variable.
   const dispatch = useDispatch();
 
+  const [opened, { open, close }] = useDisclosure();
+
   // Set up a selector for the selected_word_index variable.
   const selected_word_index = useSelector(
     (state) => state.userControl.selected_word_index
@@ -45,9 +49,12 @@ const SelectedWordInfoControls = () => {
 
   return (
     <div>
+      <Modal opened={opened} onClose={close} withTitle={false} size="90%">
+        <WordStatsInfoModalContent />
+      </Modal>
       <Grid>
         {/* This column contains the Previous button. */}
-        <Col span={6} style={{}}>
+        <Col span={4} style={{}}>
           <div style={iconContainer}>
             {/* When the selected_word_index is 0, we don't want to allow the user to go back; we'll need to "disable" the button */}
             <Icon
@@ -65,8 +72,24 @@ const SelectedWordInfoControls = () => {
           </div>
         </Col>
 
+        {/* This column contains the Info button, which uses ooui:info */}
+        <Col span={4}>
+          <div style={iconContainer}>
+            <Icon
+              icon={"ooui:info"}
+              color={"#000000"}
+              height={"15px"}
+              style={{ opacity: 1 }}
+              onClick={() => {
+                open();
+              }}
+            />
+            <Text style={{ fontSize: "0.7rem", fontWeight: 600 }}>Info</Text>
+          </div>
+        </Col>
+
         {/* This column contains the Next button. */}
-        <Col span={6}>
+        <Col span={4}>
           <div style={iconContainer}>
             <Icon
               icon={"ooui:next-ltr"}

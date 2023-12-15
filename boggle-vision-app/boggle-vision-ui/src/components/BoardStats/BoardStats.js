@@ -95,7 +95,7 @@ const BoardStats = () => {
               </Grid.Col>
               <Grid.Col span={6}>
                 <Metric
-                  header="11-Point Words"
+                  header="8+ Letters"
                   value={elevenPointWords}
                   color={boardStats.eleven_pointers_color}
                   //   explanationText={getZScoreText(

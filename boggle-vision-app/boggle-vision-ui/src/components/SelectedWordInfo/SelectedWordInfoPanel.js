@@ -39,7 +39,7 @@ const SelectedWordInfoPanel = () => {
     selected_word_index !== null ? "panelVisible" : "panelHidden";
 
   // This constant will define the height of the panel.
-  const PANEL_HEIGHT = 175;
+  const PANEL_HEIGHT = 190;
 
   // Declare a dispatch variable.
   const dispatch = useDispatch();
@@ -51,7 +51,7 @@ const SelectedWordInfoPanel = () => {
           <Col span={6} style={{ paddingRight: "10px" }}>
             <SelectedWordInfoContent />
           </Col>
-          <Col span={6} style={{ height: "100%" }}>
+          <Col span={6} style={{ height: "100%", paddingTop: 0}}>
             <div
               style={{
                 display: "flex",
@@ -61,7 +61,7 @@ const SelectedWordInfoPanel = () => {
             >
               <div
                 style={{
-                  flex: 0.4,
+                  flex: 0.1,
                   justifyContent: "right",
                   alignItems: "start",
                   display: "flex",
@@ -76,15 +76,16 @@ const SelectedWordInfoPanel = () => {
               <div
                 style={{
                   flex: 1,
-
-                  justifyContent: "center",
-                  alignItems: "center",
+                  justifyContent: "center", // Centers children in the main axis
+                  alignItems: "flex-start", // Aligns children to the start of the cross axis
                   display: "flex",
-                  border: "1px solid blue",
+                  width: "100%", // Ensures the div takes up the full width of its parent
+                  paddingTop: "5px",
                 }}
               >
                 <SelectedWordInfoStats />
               </div>
+
               <div
                 style={{
                   flex: 0.1,

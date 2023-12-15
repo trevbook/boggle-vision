@@ -12,7 +12,9 @@ export const userControlSlice = createSlice({
     feature_activations_filter_primary_color: "#ffffff",
     feature_activations_filter_secondary_color: "#000000",
     canny_edge_filter_primary_color: "#ffffff",
-    canny_edge_filter_secondary_color: "#000000"
+    canny_edge_filter_secondary_color: "#000000",
+    selected_word_data: null,
+    selected_word_rarity_color:"white"
   },
 
   // Define the reducers for this slice
@@ -52,6 +54,17 @@ export const userControlSlice = createSlice({
       state.canny_edge_filter_secondary_color = action.payload;
     },
 
+    // This reducer will set the selected_word_data state
+    setSelectedWordData: (state, action) => {
+      state.selected_word_data = action.payload;
+    },
+
+    // This reducer will set the selected_word_rarity_color state
+    setSelectedWordRarityColor: (state, action) => {
+      state.selected_word_rarity_color = action.payload;
+      console.log("selected_word_rarity_color: ", state.selected_word_rarity_color)
+    },
+
     // This reducer will reset all of the user controls
     resetAllControls: (state, action) => {
       state.show_letter_overlay = false;
@@ -61,7 +74,12 @@ export const userControlSlice = createSlice({
       state.feature_activations_filter_secondary_color = "#000000";
       state.canny_edge_filter_primary_color = "#ffffff";
       state.canny_edge_filter_secondary_color = "#000000";
+      state.selected_word_data = null;
+      state.selected_word_rarity_color = "white";
     },
+
+    
+
   },
 });
 
@@ -75,5 +93,7 @@ export const {
   setCannyEdgeFilterPrimaryColor,
   setCannyEdgeFilterSecondaryColor,
   resetAllControls,
+  setSelectedWordData,
+  setSelectedWordRarityColor
 } = userControlSlice.actions;
 export default userControlSlice.reducer;

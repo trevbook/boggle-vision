@@ -50,6 +50,12 @@ with open("data/boggle-board-point-stats.json", "r") as json_file:
 with open("data/word_to_definition.json", "r") as json_file:
     word_to_definition = json.load(json_file)
 
+# Load in the word_rarity.json file
+with open("data/word_rarity.json", "r") as json_file:
+    word_rarity_data = json.load(json_file)
+    total_games = word_rarity_data.get("total_games", 0)
+    word_rarity_data = word_rarity_data.get("rarity_dict", {})
+
 
 def hex_to_rgb(hex_color):
     """Converts a hex color code to an RGB tuple."""
@@ -235,6 +241,15 @@ def define_word(word_data: WordSchema):
     word = word_data.word
     definition = word_to_definition.get(word, None)
     return definition
+
+
+@app.post("/word_rarity")
+def word_rarity(word_data: WordSchema):
+    print(f"word_rarity has {len(word_rarity_data)} words in it.")
+    word = word_data.word
+    rarity = word_rarity_data.get(word, None)
+    rarity["total_games"] = total_games
+    return rarity
 
 
 # The following endpoint is a POST endpoint that will

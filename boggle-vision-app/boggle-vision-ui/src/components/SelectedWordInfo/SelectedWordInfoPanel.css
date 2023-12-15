@@ -9,7 +9,7 @@
   /* box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3); */
 
   /* Option 1: Add a border */
-  border: 1.4px solid #dcdcdc; /* Light gray border */
+  border: 1.6px solid #b8b8b8; /* Light gray border */
 
   /* Option 2: Differentiate with a background color */
 
@@ -27,15 +27,32 @@
 }
 
 .selected-word {
-  font-size: 1.4rem;
+  font-size: 1.65rem;
   font-weight: 700;
 }
 
 .selected-word-definition {
-  font-size: 1rem;
+  font-size: 1.05rem;
   font-weight: 400;
   color: rgb(88, 88, 88);
   padding-bottom: 10px;
+  padding-right: 10px;
   overflow-y: scroll;
   max-height: 105px;
+}
+
+.word-stat-label {
+  font-weight: 600;
+  font-size: 1.15rem;
+}
+
+.word-stat-value {
+  font-weight: 600;
+  font-size: 1.15rem;
+}
+
+
+.word-rarity-div {
+  font-weight: 600;
+  font-size: 1.7rem;
 }
