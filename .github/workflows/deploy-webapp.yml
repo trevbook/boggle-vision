@@ -5,10 +5,12 @@ on:
     branches:
       - main
     paths:
-      - 'boggle-vision-app/boggle-vision-api/**'
-      - 'boggle-vision-app/boggle-vision-ui/**'
+      - "boggle-vision-app/boggle-vision-api/**"
+      - "boggle-vision-app/boggle-vision-ui/**"
 
 jobs:
+  # This first job will authenticate with the GCP Artifact Registry.
+  # This will allow me to push images to my boggle-vision-webapp repo.
   authenticate-with-gar:
     runs-on: ubuntu-latest
     permissions:
@@ -22,7 +24,7 @@ jobs:
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
-          project_id: 'boggle-vision'
+          project_id: "boggle-vision"
           credentials_json: ${{ secrets.GCR_JSON_KEY }}
 
       - name: Login to GAR
@@ -32,12 +34,18 @@ jobs:
           username: _json_key
           password: ${{ secrets.GCR_JSON_KEY }}
 
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v0
+  # The next job will build and push the UI image to the GCP Artifact Registry.
+  build-and-push-ui:
+    if: contains(github.event.commits[0].modified, 'boggle-vision-app/boggle-vision-ui/')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build and push UI image
+        uses: docker/build-push-action@v5.1.0
         with:
-          project_id: boggle-vision
-          service_account_key: ${{ secrets.GCR_JSON_KEY }}
-          export_default_credentials: true
-
-      - name: List images in GAR repository
-        run: gcloud artifacts docker images list us-central1-docker.pkg.dev/boggle-vision/boggle-vision-webapp
+          context: boggle-vision-app/boggle-vision-ui
+          push: true
+          tags: us-central1-docker.pkg.dev/boggle-vision/boggle-vision-webapp/boggle-vision-ui:latest
