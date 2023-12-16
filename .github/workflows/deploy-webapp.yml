@@ -9,8 +9,8 @@ on:
     branches:
       - main
     paths:
-      - 'boggle-vision-app\boggle-vision-api\**'
-      - 'boggle-vision-app\boggle-vision-ui\**'
+      - 'boggle-vision-app/boggle-vision-api/**'
+      - 'boggle-vision-app/boggle-vision-ui/**'
 
 # Define all of the jobs that will be run in this Workflow
 jobs:
