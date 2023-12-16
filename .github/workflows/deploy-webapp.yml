@@ -36,7 +36,6 @@ jobs:
 
   # The next job will build and push the UI image to the GCP Artifact Registry.
   build-and-push-ui:
-    if: contains(github.event.commits[0].modified, 'boggle-vision-app/boggle-vision-ui/')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
