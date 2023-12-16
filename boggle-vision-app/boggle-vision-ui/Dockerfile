@@ -1,27 +1,31 @@
-# Use an official Node runtime as a parent image
-FROM node:18.13.0
+# I'm using a multi-stage build here, as suggested by 
+# my robot coworker, Chat-GPT. Here's the conversation: 
+# https://chat.openai.com/share/001d6284-8be9-47e9-a62c-d1585116e49c
 
-# Set the working directory in the container
+# Stage 1: Build
+FROM node:18.13.0-alpine as builder
+
 WORKDIR /usr/src/app
 
-# Copy package.json and package-lock.json
 COPY package*.json ./
 
-# Install any needed packages
 RUN npm install
 
-# Bundle app source
 COPY . .
 
-# Build the app
 RUN npm run build
 
-# Install serve to run the application
+# Stage 2: Run
+FROM node:18.13.0-alpine
+
+WORKDIR /usr/src/app
+
+# Install 'serve' in the production image
 RUN npm install -g serve
 
-# Make port 3000 available to the world outside this container
+# Copy only necessary files from the builder stage
+COPY --from=builder /usr/src/app/build ./build
+
 EXPOSE 3000
 
-# Define command to run the app
 CMD ["serve", "-s", "build", "-l", "3000"]
-
