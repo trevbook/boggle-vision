@@ -1,5 +1,5 @@
 # This file contains the workflow that will build and push the UI image to the GCP Artifact Registry.
-name: Boggle Vision Deployment
+name: Boggle Vision UI Deployment
 
 # This Workflow will only run on changes to the UI code.
 on:
