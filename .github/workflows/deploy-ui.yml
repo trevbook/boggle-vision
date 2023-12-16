@@ -1,13 +1,12 @@
-# This file contains the workflow that will build and push the UI and API images to the GCP Artifact Registry.
+# This file contains the workflow that will build and push the UI image to the GCP Artifact Registry.
 name: Boggle Vision Deployment
 
-# This Workflow will only run on changes to the API or UI code.
+# This Workflow will only run on changes to the UI code.
 on:
   push:
     branches:
       - main
     paths:
-      - "boggle-vision-app/boggle-vision-api/**"
       - "boggle-vision-app/boggle-vision-ui/**"
 
 jobs:
@@ -51,19 +50,3 @@ jobs:
           context: boggle-vision-app/boggle-vision-ui
           push: true
           tags: us-central1-docker.pkg.dev/boggle-vision/boggle-vision-webapp/boggle-vision-ui:latest
-
-  # The final job will build and push the API image to the GCP Artifact Registry.
-  build-and-push-api:
-    needs: authenticate-with-gar
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      - name: Build and push API image
-        uses: docker/build-push-action@v5.1.0
-        with:
-          context: boggle-vision-app/boggle-vision-api
-          push: true
-          tags: us-central1-docker.pkg.dev/boggle-vision/boggle-vision-webapp/boggle-vision-api:latest
