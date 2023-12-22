@@ -29,8 +29,10 @@ jobs:
         uses: docker/build-push-action@v5.1.0
         with:
           context: boggle-vision-app/boggle-vision-ui
-          push: true
           tags: us-central1-docker.pkg.dev/boggle-vision/boggle-vision-webapp/boggle-vision-ui:latest
+          provenance: false
+          platforms: linux/amd64
+          push: true
       - name: Install SSH client
         run: sudo apt-get install openssh-client
       - name: SSH and Update Server
