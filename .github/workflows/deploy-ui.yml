@@ -39,8 +39,15 @@ jobs:
         env:
           SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
         run: |
+
+          # Setting up SSH keys
           mkdir -p ~/.ssh
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H 34.171.53.77 >> ~/.ssh/known_hosts
-          ssh -i ~/.ssh/id_rsa trevbook@34.171.53.77 "echo $(date) > ~/date.txt"
+
+          # Copying the deployment script to the server
+          scp -i ~/.ssh/id_rsa ./boggle-vision-app/boggle-vision-ui/deployment-scripts/deploy-ui.sh trevbook@34.171.53.77:/tmp/deploy-ui.sh
+
+          # Running the deployment script on the server
+          ssh -i ~/.ssh/id_rsa trevbook@34.171.53.77 'chmod +x /tmp/deploy-ui && bash /tmp/deploy-ui.sh'
