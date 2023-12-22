@@ -48,8 +48,7 @@ const WordTableContainer = (props) => {
       //     ? "http://127.0.0.1:8000/solve_board"
       //     : "http://192.168.1.159:8000/solve_board";
 
-      const apiBaseUrl =
-        process.env.REACT_APP_API_URL || "http://127.0.0.1:8000";
+      const apiBaseUrl = "http://34.171.53.77:9781";
       const endpointURL = `${apiBaseUrl}/solve_board`;
 
       // Send the board data to the server.

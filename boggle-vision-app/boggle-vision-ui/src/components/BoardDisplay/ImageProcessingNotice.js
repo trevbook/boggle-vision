@@ -43,8 +43,9 @@ const ImageProcessingNotice = () => {
       // Set the loading to true when the API call is made.
       setLoading(true);
 
-      const apiBaseUrl = process.env.REACT_APP_API_URL || "http://127.0.0.1:8000";
+      const apiBaseUrl = "http://34.171.53.77:9781";
       const endpointURL = `${apiBaseUrl}/analyze_image`;
+      console.log("endpointURL: ", endpointURL);
 
       // // Determine the endpoint URL.
       // const endpointURL =

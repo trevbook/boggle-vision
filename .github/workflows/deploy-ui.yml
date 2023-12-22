@@ -32,8 +32,8 @@ jobs:
           tags: us-central1-docker.pkg.dev/boggle-vision/boggle-vision-webapp/boggle-vision-ui:latest
           provenance: false
           platforms: linux/amd64
-          push: true
           build-args: REACT_APP_API_URL=http://34.171.53.77:9781 
+          push: true
       - name: Install SSH client
         run: sudo apt-get install openssh-client
       - name: SSH and Update Server

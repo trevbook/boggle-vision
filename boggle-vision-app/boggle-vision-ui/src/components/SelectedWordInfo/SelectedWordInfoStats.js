@@ -99,8 +99,8 @@ const SelectedWordInfoStats = () => {
     //     ? "http://127.0.0.1:8000/word_rarity"
     //     : "http://192.168.1.159:8000/word_rarity";
 
-    const apiBaseUrl = process.env.REACT_APP_API_URL || "http://127.0.0.1:8000";
-      const endpointURL = `${apiBaseUrl}/word_rarity`;
+    const apiBaseUrl = "http://34.171.53.77:9781";
+    const endpointURL = `${apiBaseUrl}/word_rarity`;
 
     // Send the word to the server.
     axios
