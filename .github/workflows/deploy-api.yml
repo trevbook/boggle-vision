@@ -32,4 +32,29 @@ jobs:
           provenance: false
           platforms: linux/amd64
           push: true
-          
+      - name: Install SSH client
+        run: sudo apt-get install openssh-client
+      - name: SSH and Update Server
+        env:
+          SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
+          GCR_JSON_KEY: ${{secrets.GCR_JSON_KEY}}
+        run: |
+
+          # Setting up SSH keys
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H 34.171.53.77 >> ~/.ssh/known_hosts
+
+          # Create a temporary file to store the GCR JSON key
+          echo "$GCR_JSON_KEY" > gcr_key.json
+
+          # Copying the deployment script and the GCR JSON key to the server
+          scp -i ~/.ssh/id_rsa ./boggle-vision-app/boggle-vision-api/deployment-scripts/deploy-api.sh trevbook@34.171.53.77:/tmp/deploy-api.sh
+          scp -i ~/.ssh/id_rsa ./gcr_key.json trevbook@34.171.53.77:/tmp/gcr_key.json
+
+          # Deleting the temporary GCR JSON key file
+          rm gcr_key.json
+
+          # Running the deployment script on the server
+          ssh -i ~/.ssh/id_rsa trevbook@34.171.53.77 'chmod +x /tmp/deploy-api.sh && GCR_JSON_KEY=/tmp/gcr_key.json bash /tmp/deploy-api.sh'
