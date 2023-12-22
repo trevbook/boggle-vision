@@ -50,4 +50,4 @@ jobs:
           scp -i ~/.ssh/id_rsa ./boggle-vision-app/boggle-vision-ui/deployment-scripts/deploy-ui.sh trevbook@34.171.53.77:/tmp/deploy-ui.sh
 
           # Running the deployment script on the server
-          ssh -i ~/.ssh/id_rsa trevbook@34.171.53.77 'chmod +x /tmp/deploy-ui && bash /tmp/deploy-ui.sh'
+          ssh -i ~/.ssh/id_rsa trevbook@34.171.53.77 'chmod +x /tmp/deploy-ui.sh && bash /tmp/deploy-ui.sh'
