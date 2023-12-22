@@ -10,24 +10,6 @@ on:
       - "boggle-vision-app/boggle-vision-ui/**"
 
 jobs:
-  # This first job will authenticate with the GCP Artifact Registry.
-  # This will allow me to push images to my boggle-vision-webapp repo.
-  # authenticate-with-gar:
-  #   runs-on: ubuntu-latest
-  #   permissions:
-  #     contents: read
-  #     id-token: write
-
-  #   steps:
-  #     - name: Checkout Code
-  #       uses: actions/checkout@v4
-
-  #     - name: Authenticate to Google Cloud
-  #       uses: google-github-actions/auth@v2
-  #       with:
-  #         project_id: "boggle-vision"
-  #         credentials_json: ${{ secrets.GCR_JSON_KEY }}
-
   # The next job will build and push the UI image to the GCP Artifact Registry.
   build-and-push-ui:
     # needs: authenticate-with-gar
@@ -49,3 +31,14 @@ jobs:
           context: boggle-vision-app/boggle-vision-ui
           push: true
           tags: us-central1-docker.pkg.dev/boggle-vision/boggle-vision-webapp/boggle-vision-ui:latest
+      - name: Install SSH client
+        run: sudo apt-get install openssh-client
+      - name: SSH and Update Server
+        env:
+          SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H 34.171.53.77 >> ~/.ssh/known_hosts
+          ssh -i ~/.ssh/id_rsa trevbook@34.171.53.77 "echo $(date) > ~/date.txt"

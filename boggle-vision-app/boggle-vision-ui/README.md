@@ -17,4 +17,4 @@ docker tag boggle-vision-ui us-central1-docker.pkg.dev/boggle-vision/boggle-visi
 docker push us-central1-docker.pkg.dev/boggle-vision/boggle-vision-webapp/boggle-vision-ui
 ``` 
 
----
+--- 
