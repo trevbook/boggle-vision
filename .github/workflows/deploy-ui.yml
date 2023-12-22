@@ -12,25 +12,25 @@ on:
 jobs:
   # This first job will authenticate with the GCP Artifact Registry.
   # This will allow me to push images to my boggle-vision-webapp repo.
-  authenticate-with-gar:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
+  # authenticate-with-gar:
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: read
+  #     id-token: write
 
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+  #   steps:
+  #     - name: Checkout Code
+  #       uses: actions/checkout@v4
 
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
-        with:
-          project_id: "boggle-vision"
-          credentials_json: ${{ secrets.GCR_JSON_KEY }}
+  #     - name: Authenticate to Google Cloud
+  #       uses: google-github-actions/auth@v2
+  #       with:
+  #         project_id: "boggle-vision"
+  #         credentials_json: ${{ secrets.GCR_JSON_KEY }}
 
   # The next job will build and push the UI image to the GCP Artifact Registry.
   build-and-push-ui:
-    needs: authenticate-with-gar
+    # needs: authenticate-with-gar
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
