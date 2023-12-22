@@ -22,7 +22,10 @@ FROM python:3.10-slim
 # Set the working directory in the runtime container
 WORKDIR /usr/src/app
 
-# Copy only the necessary files from the builder stage
+# Copy the Python environment from the builder stage
+COPY --from=builder /usr/local /usr/local
+
+# Copy the application code from the builder stage
 COPY --from=builder /usr/src/app /usr/src/app
 
 # Install uvicorn in the runtime container
