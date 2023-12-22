@@ -93,11 +93,14 @@ const SelectedWordInfoStats = () => {
       return;
     }
 
-    // Otherwise, we're going to ping the word_rarity endpoint.
-    const endpointURL =
-      window.location.hostname === "localhost"
-        ? "http://127.0.0.1:8000/word_rarity"
-        : "http://192.168.1.159:8000/word_rarity";
+    // // Otherwise, we're going to ping the word_rarity endpoint.
+    // const endpointURL =
+    //   window.location.hostname === "localhost"
+    //     ? "http://127.0.0.1:8000/word_rarity"
+    //     : "http://192.168.1.159:8000/word_rarity";
+
+    const apiBaseUrl = process.env.REACT_APP_API_URL || "http://127.0.0.1:8000";
+      const endpointURL = `${apiBaseUrl}/word_rarity`;
 
     // Send the word to the server.
     axios

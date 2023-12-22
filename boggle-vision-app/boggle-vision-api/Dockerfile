@@ -25,6 +25,9 @@ WORKDIR /usr/src/app
 # Copy only the necessary files from the builder stage
 COPY --from=builder /usr/src/app /usr/src/app
 
+# Install uvicorn in the runtime container
+RUN pip install uvicorn
+
 # Make port 8000 available to the world outside this container
 EXPOSE 8000
 

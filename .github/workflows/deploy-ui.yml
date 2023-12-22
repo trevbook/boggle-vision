@@ -33,6 +33,7 @@ jobs:
           provenance: false
           platforms: linux/amd64
           push: true
+          build-args: REACT_APP_API_URL=http://34.171.53.77:9781 
       - name: Install SSH client
         run: sudo apt-get install openssh-client
       - name: SSH and Update Server

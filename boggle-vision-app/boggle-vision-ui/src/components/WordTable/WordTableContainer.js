@@ -42,11 +42,15 @@ const WordTableContainer = (props) => {
       dispatch(setWordsTableData(null));
       dispatch(setBoardStats(null));
     } else {
-      // Otherwise, we're going to ping the solve_board endpoint.
-      const endpointURL =
-        window.location.hostname === "localhost"
-          ? "http://127.0.0.1:8000/solve_board"
-          : "http://192.168.1.159:8000/solve_board";
+      // // Otherwise, we're going to ping the solve_board endpoint.
+      // const endpointURL =
+      //   window.location.hostname === "localhost"
+      //     ? "http://127.0.0.1:8000/solve_board"
+      //     : "http://192.168.1.159:8000/solve_board";
+
+      const apiBaseUrl =
+        process.env.REACT_APP_API_URL || "http://127.0.0.1:8000";
+      const endpointURL = `${apiBaseUrl}/solve_board`;
 
       // Send the board data to the server.
       axios

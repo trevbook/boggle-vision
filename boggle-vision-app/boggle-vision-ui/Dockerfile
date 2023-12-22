@@ -2,10 +2,14 @@
 # my robot coworker, Chat-GPT. Here's the conversation: 
 # https://chat.openai.com/share/001d6284-8be9-47e9-a62c-d1585116e49c
 
+ARG REACT_APP_API_URL
+
 # Stage 1: Build
 FROM node:18.13.0-alpine as builder
 
 WORKDIR /usr/src/app
+
+ENV REACT_APP_API_URL $REACT_APP_API_URL
 
 COPY package*.json ./
 

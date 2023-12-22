@@ -43,11 +43,14 @@ const ImageProcessingNotice = () => {
       // Set the loading to true when the API call is made.
       setLoading(true);
 
-      // Determine the endpoint URL.
-      const endpointURL =
-        window.location.hostname === "localhost"
-          ? "http://127.0.0.1:8000/analyze_image"
-          : "http://192.168.1.159:8000/analyze_image";
+      const apiBaseUrl = process.env.REACT_APP_API_URL || "http://127.0.0.1:8000";
+      const endpointURL = `${apiBaseUrl}/analyze_image`;
+
+      // // Determine the endpoint URL.
+      // const endpointURL =
+      //   window.location.hostname === "localhost"
+      //     ? "http://127.0.0.1:8000/analyze_image"
+      //     : "http://192.168.1.159:8000/analyze_image";
 
       // Send the image to the server.
       axios
