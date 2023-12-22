@@ -27,18 +27,18 @@ fi
 # Now, we're going to authenticate Docker with GAR
 echo "Configuring Docker for GAR authentication..."
 export GOOGLE_APPLICATION_CREDENTIALS=$GCR_JSON_KEY
-gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
-gcloud auth configure-docker us-central1-docker.pkg.dev
+sudo gcloud auth activate-service-account --quiet --account github-actions-runner@boggle-vision.iam.gserviceaccount.com --key-file=$GOOGLE_APPLICATION_CREDENTIALS
+sudo gcloud auth configure-docker us-central1-docker.pkg.dev
 
 # Pull the latest Docker image
 echo "Pulling the latest Docker image..."
-docker pull us-central1-docker.pkg.dev/boggle-vision/boggle-vision-webapp/boggle-vision-ui:latest
+sudo docker pull us-central1-docker.pkg.dev/boggle-vision/boggle-vision-webapp/boggle-vision-ui:latest
 
 # Stop and remove the current running container
 echo "Stopping and removing current container..."
-docker stop boggle-vision-ui-container || true
-docker rm boggle-vision-ui-container || true
+sudo docker stop boggle-vision-ui-container || true
+sudo docker rm boggle-vision-ui-container || true
 
 # Run the new container
 echo "Running the new container..."
-docker run --name boggle-vision-ui-container -d us-central1-docker.pkg.dev/boggle-vision/boggle-vision-webapp/boggle-vision-ui:latest
+sudo docker run --name boggle-vision-ui-container -d us-central1-docker.pkg.dev/boggle-vision/boggle-vision-webapp/boggle-vision-ui:latest
