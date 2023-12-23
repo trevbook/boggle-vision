@@ -14,25 +14,24 @@ class BoggleCNN(nn.Module):
 
         self.features = nn.Sequential(
             # First Conv layer with ReLU and Max-Pooling
-            nn.Conv2d(1, 32, kernel_size=3),
+            nn.Conv2d(1, 8, kernel_size=3),
             nn.ReLU(),
             nn.MaxPool2d(2, 2),
+            nn.Dropout2d(0.15),
             # Second Conv layer with ReLU and Max-Pooling
-            nn.Conv2d(32, 64, kernel_size=3),
+            nn.Conv2d(8, 16, kernel_size=3),
             nn.ReLU(),
             nn.MaxPool2d(2, 2),
-            
+            nn.Dropout2d(0.15),
             # Third Conv layer with ReLU and Max-Pooling
-            nn.Conv2d(64, 128, kernel_size=3),
+            nn.Conv2d(16, 32, kernel_size=3),
             nn.ReLU(),
             nn.MaxPool2d(2, 2),
-
         )
-        
 
         self.classifier = nn.Sequential(
             # Fully Connected Layer 1 with ReLU
-            nn.Linear(128 * 100, 128),
+            nn.Linear(32 * 100, 128),
             nn.ReLU(),
             # Fully Connected Layer 2 (Output layer)
             nn.Linear(128, len(allowed_boggle_tiles)),

@@ -490,7 +490,7 @@ def detect_tile_contours(
     max_tile_area_percentage=0.02,
     tile_size_difference_threshold=0.3,
     polygon_approximation_epsilon=0.02,
-    return_binary_image=False
+    return_binary_image=False,
 ):
     """
     This method will detect the contours of the tiles in the top-down board image.
@@ -1541,7 +1541,10 @@ def parse_boggle_board(
 
 
 def ocr_all_tiles_cnn(
-    extracted_tile_img_dict, model, return_activation_visualization=False
+    extracted_tile_img_dict,
+    model,
+    return_activation_visualization=False,
+    batch_size=4,
 ):
     """
     This method will use a specially trainend CNN to run OCR on the tiles.
@@ -1557,34 +1560,23 @@ def ocr_all_tiles_cnn(
     # Create a list of the images and their corresponding indices
     image_list = []
     for image_idx, image in extracted_tile_img_dict.items():
-        # TODO: This is suboptimal as hell. I gotta figure out how to
-        # retrain the model to not introduce compression artifacts from
-        # saving the image as a .png file.
-
-        # Save the image as a .png file
-        Image.fromarray(image).save(f"{image_idx}.png")
-
-        # Use read_image() to read in the tensor
-        img_tensor = read_image(f"{image_idx}.png").float()
-
-        # Delete the image file
-        Path(f"{image_idx}.png").unlink()
-
-        # Add the image to the list
+        img_tensor = torch.tensor(image).float()
         image_list.append(img_tensor)
 
     # Create a DataLoader from the image list
     image_loader = data.DataLoader(
-        image_list, batch_size=1, shuffle=False, num_workers=0
+        image_list, batch_size=batch_size, shuffle=False, num_workers=0
     )
 
     # Run the images through the model
     model_predictions = []
     activation_visualizations = []
     for image_batch in image_loader:
+        # print(f"the shape of image_batch is {image_batch.shape}")
+        image_batch = image_batch.unsqueeze(1)  # Adds a channel dimension
         score, predicted = torch.max(model(image_batch), 1)
-        predicted_letter = allowed_boggle_tiles[predicted.tolist()[0]]
-        model_predictions.append(predicted_letter)
+        predicted_letters = [allowed_boggle_tiles[p] for p in predicted.tolist()]
+        model_predictions += predicted_letters
 
         # If we're trying to return the activation visualization, we'll do that here
         if return_activation_visualization:
@@ -1595,13 +1587,13 @@ def ocr_all_tiles_cnn(
             ).squeeze()
             activation_visualization = np.maximum(activation_visualization, 0)
             activation_visualization /= np.max(activation_visualization)
-            
+
             # Normalize the numpy array and convert to 8-bit integer
             activation_visualization = (activation_visualization * 255).astype(np.uint8)
-            
+
             # Convert to a list
             # activation_visualization = activation_visualization.tolist()
-            
+
             # Append to the list of visualizations
             activation_visualizations.append(activation_visualization)
 
@@ -1623,7 +1615,3 @@ def ocr_all_tiles_cnn(
     # Otherwise, we'll return both
     else:
         return tile_ocr_results_df, activation_visualizations
-
-
-
-
