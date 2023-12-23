@@ -1563,9 +1563,8 @@ def ocr_all_tiles_cnn(
     # that allows us to do that
     if return_activation_visualization:
         # Attach the hook to one of the convolutional layers
-        layer_of_interest = model.features[5]
+        layer_of_interest = model.features[0]
         activated_features = SaveFeatures(layer_of_interest)
-
     # Create a list of the images and their corresponding indices
     image_list = []
     for image_idx, image in extracted_tile_img_dict.items():
@@ -1581,7 +1580,6 @@ def ocr_all_tiles_cnn(
     model_predictions = []
     activation_visualizations = []
     for image_batch in image_loader:
-        # print(f"the shape of image_batch is {image_batch.shape}")
         image_batch = image_batch.unsqueeze(1)  # Adds a channel dimension
         score, predicted = torch.max(model(image_batch), 1)
         predicted_letters = [allowed_boggle_tiles[p] for p in predicted.tolist()]
@@ -1599,12 +1597,10 @@ def ocr_all_tiles_cnn(
 
             # Normalize the numpy array and convert to 8-bit integer
             activation_visualization = (activation_visualization * 255).astype(np.uint8)
-
-            # Convert to a list
-            # activation_visualization = activation_visualization.tolist()
-
-            # Append to the list of visualizations
-            activation_visualizations.append(activation_visualization)
+            
+            # Append each of the activation visualizations to the list
+            for idx, viz in enumerate(activation_visualization):
+                activation_visualizations.append(viz)
 
     # Now, we're going to make a DataFrame from the model predictions
     tile_ocr_results_records = []

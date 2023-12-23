@@ -1572,7 +1572,6 @@ def ocr_all_tiles_cnn(
     model_predictions = []
     activation_visualizations = []
     for image_batch in image_loader:
-        # print(f"the shape of image_batch is {image_batch.shape}")
         image_batch = image_batch.unsqueeze(1)  # Adds a channel dimension
         score, predicted = torch.max(model(image_batch), 1)
         predicted_letters = [allowed_boggle_tiles[p] for p in predicted.tolist()]

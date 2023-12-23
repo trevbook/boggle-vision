@@ -30,7 +30,7 @@ app = FastAPI()
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://34.171.53.77:9780"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -245,7 +245,6 @@ def define_word(word_data: WordSchema):
 
 @app.post("/word_rarity")
 def word_rarity(word_data: WordSchema):
-    print(f"word_rarity has {len(word_rarity_data)} words in it.")
     word = word_data.word
     rarity = word_rarity_data.get(word, None)
     rarity["total_games"] = total_games
@@ -257,6 +256,7 @@ def word_rarity(word_data: WordSchema):
 # of that data.
 @app.post("/analyze_image")
 def analyze_image(data: dict):
+    
     # Extract the image string from the dict
     image_str = data.get("image")
     pure_base64_str = image_str.split(",")[-1]
@@ -272,28 +272,32 @@ def analyze_image(data: dict):
     import numpy as np
 
     image = cv2.imdecode(np.frombuffer(image_bytes, dtype=np.uint8), -1)
+    
+    try:
+        
 
-    # Parse the board
-    (
-        parsed_board_df,
-        cropped_board_img,
-        tile_contours_df,
-        letter_activation_visualization_list,
-        canny_edge_visualization,
-    ) = board_detect.parse_boggle_board(
-        input_image=image,
-        max_image_height=1200,
-        model=net,
-        return_list=[
-            "parsed_board",
-            "cropped_image",
-            "tile_contours",
-            "activation_visualization",
-            "canny_edge_visualization",
-        ],
-    )
-
-    print(f"type of canny_edge_visualization is {type(canny_edge_visualization)}")
+        # Parse the board
+        (
+            parsed_board_df,
+            cropped_board_img,
+            tile_contours_df,
+            letter_activation_visualization_list,
+            canny_edge_visualization,
+        ) = board_detect.parse_boggle_board(
+            input_image=image,
+            max_image_height=1200,
+            model=net,
+            return_list=[
+                "parsed_board",
+                "cropped_image",
+                "tile_contours",
+                "activation_visualization",
+                "canny_edge_visualization",
+            ],
+        )
+    
+    except Exception as e:
+        raise e
 
     # Use the generate_activation_heatmap_filter to generate an activation heatmap of the board
     activation_heatmap_img = generate_activation_heatmap_filter(

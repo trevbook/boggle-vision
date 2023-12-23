@@ -43,15 +43,12 @@ const ImageProcessingNotice = () => {
       // Set the loading to true when the API call is made.
       setLoading(true);
 
-      const apiBaseUrl = "http://34.171.53.77:9781";
+      const apiBaseUrl =
+        window.location.hostname === "localhost"
+          ? "http://127.0.0.1:8000"
+          : "http://34.171.53.77:9781";
+      console.log(`apiBaseUrl: ${apiBaseUrl}`)
       const endpointURL = `${apiBaseUrl}/analyze_image`;
-      console.log("endpointURL: ", endpointURL);
-
-      // // Determine the endpoint URL.
-      // const endpointURL =
-      //   window.location.hostname === "localhost"
-      //     ? "http://127.0.0.1:8000/analyze_image"
-      //     : "http://192.168.1.159:8000/analyze_image";
 
       // Send the image to the server.
       axios
@@ -68,7 +65,7 @@ const ImageProcessingNotice = () => {
           const letter_activation_visualization_list =
             response.data.letter_activation_visualization_list;
           const activation_heatmap = response.data.activation_heatmap;
-          const canny_edge_viz = response.data.canny_edge_visualization
+          const canny_edge_viz = response.data.canny_edge_visualization;
 
           // Make a boardData object
           const cur_board_data = {
@@ -84,7 +81,7 @@ const ImageProcessingNotice = () => {
             setBoardImages({
               cropped_board: cropped_board_image_str,
               activation_heatmap: activation_heatmap,
-              canny_edge_viz: canny_edge_viz
+              canny_edge_viz: canny_edge_viz,
             })
           );
 

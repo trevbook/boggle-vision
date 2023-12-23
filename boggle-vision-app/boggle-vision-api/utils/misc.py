@@ -532,7 +532,6 @@ def identify_underline_contours(input_img, input_hierarchy_df):
             return []
 
     except Exception as e:
-        # print(traceback.format_exc())
         return []
 
 
