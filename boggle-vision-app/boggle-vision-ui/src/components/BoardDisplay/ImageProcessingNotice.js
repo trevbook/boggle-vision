@@ -19,6 +19,7 @@ import { setLetterImageContours } from "../../slices/boardImagesSlice";
 import { setLetterSequence } from "../../slices/boardDataSlice";
 import { setBoardImageOriginalHeight } from "../../slices/boardImagesSlice";
 import { setBoardImageOriginalWidth } from "../../slices/boardImagesSlice";
+import { setLoading } from "../../slices/imageUploadSlice";
 
 // ==============================================================
 //                        COMPONENT DEFINITION
@@ -28,7 +29,6 @@ import { setBoardImageOriginalWidth } from "../../slices/boardImagesSlice";
 const ImageProcessingNotice = () => {
   // This state will contain the response from the server.
   const [response, setResponse] = useState(null);
-  const [loading, setLoading] = useState(false);
 
   // Declare a dispatch
   const dispatch = useDispatch();
@@ -40,15 +40,14 @@ const ImageProcessingNotice = () => {
   useEffect(() => {
     // If the image is not null, then send the image to the server.
     if (imageUploadSlice.image !== null) {
-      // Set the loading to true when the API call is made.
-      setLoading(true);
-
       const apiBaseUrl =
         window.location.hostname === "localhost"
           ? "http://127.0.0.1:8000"
           : "http://34.171.53.77:9781";
-      console.log(`apiBaseUrl: ${apiBaseUrl}`)
       const endpointURL = `${apiBaseUrl}/analyze_image`;
+
+      // Set the loading state to True
+      dispatch(setLoading(true));
 
       // Send the image to the server.
       axios
@@ -108,7 +107,7 @@ const ImageProcessingNotice = () => {
           // Wait a bit, to give the user a chance to see the loading message.
           setTimeout(() => {
             // Reset loading to false when the API call is finished.
-            setLoading(false);
+            dispatch(setLoading(false));
           }, 1000);
         });
     } else {
@@ -121,8 +120,6 @@ const ImageProcessingNotice = () => {
     <div>
       {response === null ? (
         "Click to upload an image..."
-      ) : loading ? (
-        "Loading..."
       ) : (
         <div style={{ width: "100%", wordWrap: "break-word" }}></div>
       )}
