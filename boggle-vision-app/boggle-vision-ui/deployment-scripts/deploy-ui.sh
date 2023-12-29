@@ -41,4 +41,4 @@ sudo docker rm boggle-vision-ui-container || true
 
 # Run the new container
 echo "Running the new container..."
-sudo docker run --name boggle-vision-ui-container -d -p 9780:3000 us-central1-docker.pkg.dev/boggle-vision/boggle-vision-webapp/boggle-vision-ui:latest
+sudo docker run --name boggle-vision-ui-container -d -p 80:3000 us-central1-docker.pkg.dev/boggle-vision/boggle-vision-webapp/boggle-vision-ui:latest
