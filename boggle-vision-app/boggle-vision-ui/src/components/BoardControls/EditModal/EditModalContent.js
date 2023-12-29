@@ -181,10 +181,7 @@ const EditModalContent = () => {
             <Grid>
               {curBoardLetters.map((letter, index) => (
                 <Grid.Col
-                  span={12 / gridSize} // for desktop
-                  xs={2} // for very small screens like mobile
-                  sm={4} // for small screens like tablets
-                  md={6} // for medium screens
+                  span={2} // for desktop
                   key={index}
                 >
                   <input
