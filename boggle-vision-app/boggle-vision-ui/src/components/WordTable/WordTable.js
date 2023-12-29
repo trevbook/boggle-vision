@@ -93,6 +93,7 @@ const WordTable = (props) => {
         "--header-points-size": 0,
         "--col-points-size": 0,
         "--header-word-color": "black",
+        "textAlign": "center",
       },
     },
   });

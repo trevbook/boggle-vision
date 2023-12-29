@@ -72,7 +72,7 @@ const BoardControlsContainer = () => {
 
   return (
     <div>
-      <Modal opened={opened} onClose={close} title="Edit Board" size="70%">
+      <Modal opened={opened} onClose={close} title="" size="90%">
         <EditModalContent />
       </Modal>
       <Modal

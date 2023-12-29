@@ -14,7 +14,7 @@ export const userControlSlice = createSlice({
     canny_edge_filter_primary_color: "#ffffff",
     canny_edge_filter_secondary_color: "#000000",
     selected_word_data: null,
-    selected_word_rarity_color:"white"
+    selected_word_rarity_color: "white",
   },
 
   // Define the reducers for this slice
@@ -62,7 +62,6 @@ export const userControlSlice = createSlice({
     // This reducer will set the selected_word_rarity_color state
     setSelectedWordRarityColor: (state, action) => {
       state.selected_word_rarity_color = action.payload;
-      console.log("selected_word_rarity_color: ", state.selected_word_rarity_color)
     },
 
     // This reducer will reset all of the user controls
@@ -77,9 +76,6 @@ export const userControlSlice = createSlice({
       state.selected_word_data = null;
       state.selected_word_rarity_color = "white";
     },
-
-    
-
   },
 });
 
@@ -94,6 +90,6 @@ export const {
   setCannyEdgeFilterSecondaryColor,
   resetAllControls,
   setSelectedWordData,
-  setSelectedWordRarityColor
+  setSelectedWordRarityColor,
 } = userControlSlice.actions;
 export default userControlSlice.reducer;
