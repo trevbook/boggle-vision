@@ -46,3 +46,28 @@ video {
   pointer-events: none;
   /* Let clicks go through the overlay */
 }
+
+.uploadButtonContainer {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  text-align: center;
+  padding-bottom: 10px;
+  height: 75px;
+  background-color: white;
+}
+
+.iconContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 75px;
+}
+
+.iconDescription {
+  margin-top: 5px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}

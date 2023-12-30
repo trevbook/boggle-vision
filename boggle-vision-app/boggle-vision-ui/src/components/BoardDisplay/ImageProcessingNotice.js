@@ -20,6 +20,7 @@ import { setLetterSequence } from "../../slices/boardDataSlice";
 import { setBoardImageOriginalHeight } from "../../slices/boardImagesSlice";
 import { setBoardImageOriginalWidth } from "../../slices/boardImagesSlice";
 import { setLoading } from "../../slices/imageUploadSlice";
+import { Icon } from "@iconify/react";
 
 // ==============================================================
 //                        COMPONENT DEFINITION
@@ -35,6 +36,31 @@ const ImageProcessingNotice = () => {
 
   // The imageUploadSlice will contain the image that the user uploaded.
   const imageUploadSlice = useSelector((state) => state.imageUpload);
+
+  // Declare some styling for the icons.
+  var container = {
+    width: "100%",
+    display: "flex",
+    justifyContent: "space-between",
+    textAlign: "center",
+    paddingBottom: "10px",
+    height: 75,
+    backgroundColor: "white",
+  };
+  var iconContainer = {
+    flex: "1",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    height: 75,
+  };
+  var iconDescription = {
+    marginTop: "5px",
+    fontSize: "0.85rem",
+    fontWeight: 600,
+  };
+  var controlContainerHeight = "30px";
 
   // This useEffect will be called when the imageUploadSlice.image changes.
   useEffect(() => {
@@ -119,7 +145,7 @@ const ImageProcessingNotice = () => {
   return (
     <div>
       {response === null ? (
-        "Click to upload an image..."
+        <div />
       ) : (
         <div style={{ width: "100%", wordWrap: "break-word" }}></div>
       )}

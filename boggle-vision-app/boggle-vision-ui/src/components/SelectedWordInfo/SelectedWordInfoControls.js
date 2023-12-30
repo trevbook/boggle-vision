@@ -49,7 +49,7 @@ const SelectedWordInfoControls = () => {
 
   return (
     <div>
-      <Modal opened={opened} onClose={close} withTitle={false} size="90%">
+      <Modal opened={opened} onClose={close} size="90%">
         <WordStatsInfoModalContent />
       </Modal>
       <Grid>

@@ -16,6 +16,7 @@ import ImageProcessingNotice from "./ImageProcessingNotice";
 import TileOverlay from "./TileOverlay";
 import WordOverlay from "./WordOverlay";
 import FilterOverlay from "./FilterOverlay";
+import { Icon } from "@iconify/react";
 
 // ==============================================================
 //                        COMPONENT DEFINITION
@@ -29,6 +30,7 @@ const ImageInput = () => {
   const [image, setImageState] = React.useState(null);
 
   // Declare a ref for the "overlay canvas"
+  const fileInputRef = useRef(null); // Ref for the hidden file input
   const boardCanvasRef = useRef(null);
   const overlayCanvasRef = useRef(null);
   const wordOverlayCanvasRef = useRef(null);
@@ -42,6 +44,9 @@ const ImageInput = () => {
 
   // The boardImages selector will contain the uploaded board data
   const boardImagesSlice = useSelector((state) => state.boardImages);
+
+  // Height of the control buttons
+  var controlContainerHeight = "30px";
 
   // This useEffect will be called when the imageUploadSlice.image changes.
   useEffect(() => {
@@ -106,66 +111,140 @@ const ImageInput = () => {
     }
   };
 
+  const uploadImage = () => {
+    // Function to trigger the file input click
+    fileInputRef.current.click();
+  };
+
+  const loadRandomImage = () => {
+    // Generate a random number between 1 and 5
+    const randomNum = Math.floor(Math.random() * 5) + 1;
+
+    // Construct the image file path
+    const imagePath = `/images/sample-image-${randomNum}.png`;
+
+    // Create and load the image
+    const image = new Image();
+    image.crossOrigin = "Anonymous"; // Needed for CORS when converting to base64
+    image.src = imagePath;
+    image.onload = () => {
+      // Create a canvas element
+      const canvas = document.createElement("canvas");
+      canvas.width = image.width;
+      canvas.height = image.height;
+
+      // Draw the image onto the canvas
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(image, 0, 0);
+
+      // Remove alpha channel by drawing the image onto itself with a white background
+      ctx.globalCompositeOperation = "destination-over";
+      ctx.fillStyle = "#fff"; // White background
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Convert the canvas to a data URL (base64 string)
+      const base64Image = canvas.toDataURL("image/jpeg"); // Convert to JPEG to discard alpha channel
+
+      // Dispatch the action to set the image in your Redux store
+      dispatch(setImage(base64Image));
+    };
+  };
+
   // Render the component.
   return (
     <div>
+      <input
+        type="file"
+        id="hiddenFileInput"
+        onChange={handleImageChange}
+        ref={fileInputRef}
+        style={{ display: "none" }} // Hide the file input
+      />
+
       {/* This allows the upload of an image */}
-      <label htmlFor="hiddenFileInput" className="capture-container">
-        <input type="file" id="hiddenFileInput" onChange={handleImageChange} />
+      <label>
         {image ? (
           // Make this div a flexbox that centers its contents.
-          <div style={{ display: "flex", justifyContent: "center" }}>
-            {/* Canvas for the board */}
-            <canvas
-              ref={boardCanvasRef}
-              style={{
-                position: "absolute",
-                zIndex: 1,
-                maxWidth: "100%",
-                height: "100%",
-              }}
-            ></canvas>
+          <div className="capture-container">
+            <div style={{ display: "flex", justifyContent: "center" }}>
+              {/* Canvas for the board */}
+              <canvas
+                ref={boardCanvasRef}
+                style={{
+                  position: "absolute",
+                  zIndex: 1,
+                  maxWidth: "100%",
+                  height: "100%",
+                }}
+              ></canvas>
 
-            {/* Canvas for the overlay */}
-            <canvas
-              ref={overlayCanvasRef}
-              style={{
-                position: "absolute",
-                zIndex: 3,
-                maxWidth: "100%",
-                height: "100%",
-              }}
-            />
+              {/* Canvas for the overlay */}
+              <canvas
+                ref={overlayCanvasRef}
+                style={{
+                  position: "absolute",
+                  zIndex: 3,
+                  maxWidth: "100%",
+                  height: "100%",
+                }}
+              />
 
-            {/* Canvas for the word overlay */}
-            <canvas
-              ref={wordOverlayCanvasRef}
-              style={{
-                position: "absolute",
-                zIndex: 4,
-                maxWidth: "100%",
-                height: "100%",
-              }}
-            />
+              {/* Canvas for the word overlay */}
+              <canvas
+                ref={wordOverlayCanvasRef}
+                style={{
+                  position: "absolute",
+                  zIndex: 4,
+                  maxWidth: "100%",
+                  height: "100%",
+                }}
+              />
 
-            {/* Canvas for the word overlay */}
-            <canvas
-              ref={filterOverlayCanvasRef}
-              style={{
-                position: "absolute",
-                zIndex: 2,
-                maxWidth: "100%",
-                height: "100%",
-              }}
-            />
+              {/* Canvas for the word overlay */}
+              <canvas
+                ref={filterOverlayCanvasRef}
+                style={{
+                  position: "absolute",
+                  zIndex: 2,
+                  maxWidth: "100%",
+                  height: "100%",
+                }}
+              />
 
-            {/* Your TileOverlay component */}
-            <FilterOverlay filterOverlayCanvasRef={filterOverlayCanvasRef} />
-            <TileOverlay overlayCanvasRef={overlayCanvasRef} />
-            <WordOverlay wordOverlayCanvasRef={wordOverlayCanvasRef} />
+              {/* Your TileOverlay component */}
+              <FilterOverlay filterOverlayCanvasRef={filterOverlayCanvasRef} />
+              <TileOverlay overlayCanvasRef={overlayCanvasRef} />
+              <WordOverlay wordOverlayCanvasRef={wordOverlayCanvasRef} />
+            </div>
           </div>
         ) : (
-          <div className="custom-file-button">
+          <div>
+            <div className="uploadButtonContainer">
+              <div className="iconContainer">
+                <Icon
+                  icon={"uil:camera"}
+                  color={"black"}
+                  onClick={() => {
+                    uploadImage();
+                  }}
+                  height={controlContainerHeight}
+                />
+                <div className={"`iconDescription"}>Upload Image</div>
+              </div>
+
+              {/* Random Image Button */}
+              <div className="iconContainer">
+                <Icon
+                  icon={"fa-solid:dice"}
+                  color={"black"}
+                  onClick={() => {
+                    loadRandomImage();
+                  }}
+                  height={controlContainerHeight}
+                />
+                <div className={"`iconDescription"}>Random Image</div>
+              </div>
+            </div>
             <ImageProcessingNotice />
           </div>
         )}
