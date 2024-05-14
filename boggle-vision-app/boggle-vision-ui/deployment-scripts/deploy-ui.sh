@@ -5,6 +5,13 @@ if ! command -v docker &>/dev/null; then
     echo "Installing Docker..."
 
     # Add Docker's official GPG key:
+    sudo mkdir -p /etc/apt/keyrings
+    sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor --yes -o /etc/apt/keyrings/docker.gpg
+
+    # Make sure the key is readable
+    sudo chmod a+r /etc/apt/keyrings/docker.gpg
+
+    # Add Docker's official GPG key:
     sudo apt-get update
     sudo apt-get install -y ca-certificates curl gnupg lsb-release
     curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
@@ -39,3 +46,7 @@ sudo docker rm boggle-vision-ui-container || true
 # Run the new container
 echo "Running the new container..."
 sudo docker run --name boggle-vision-ui-container -d -p 80:3000 us-central1-docker.pkg.dev/boggle-vision/boggle-vision-webapp/boggle-vision-ui:latest
+
+# Clean up unused Docker images
+echo "Cleaning up unused Docker images..."
+sudo docker image prune -f

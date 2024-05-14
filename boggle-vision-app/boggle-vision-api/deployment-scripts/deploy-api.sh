@@ -42,3 +42,7 @@ sudo docker rm boggle-vision-api-container || true
 # Run the new container
 echo "Running the new container..."
 sudo docker run --name boggle-vision-api-container -d -p 9781:8000 us-central1-docker.pkg.dev/boggle-vision/boggle-vision-webapp/boggle-vision-api:latest
+
+# Clean up unused Docker images
+echo "Cleaning up unused Docker images..."
+sudo docker image prune -f
