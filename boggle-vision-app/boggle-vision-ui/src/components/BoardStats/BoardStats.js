@@ -77,7 +77,7 @@ const BoardStats = () => {
         <>
           <div style={{ marginBottom: "00px" }}>
             <Grid>
-              <Grid.Col span={6}>
+              <Grid.Col span={4}>
                 <Metric
                   header="Total Points"
                   value={totalPoints}
@@ -85,7 +85,7 @@ const BoardStats = () => {
                   //   explanationText={getZScoreText(boardStats.total_points_z_score)}
                 />
               </Grid.Col>
-              <Grid.Col span={6}>
+              <Grid.Col span={4}>
                 <Metric
                   header="Word Count"
                   value={wordCount}
@@ -93,7 +93,7 @@ const BoardStats = () => {
                   //   explanationText={getZScoreText(boardStats.word_count_z_score)}
                 />
               </Grid.Col>
-              <Grid.Col span={6}>
+              <Grid.Col span={4}>
                 <Metric
                   header="8+ Letters"
                   value={elevenPointWords}
@@ -104,15 +104,15 @@ const BoardStats = () => {
                 />
               </Grid.Col>
 
-              <Grid.Col span={6}>
-                <Metric
+              {/* <Grid.Col span={6}> */}
+                {/* <Metric
                   header="PPW"
                   value={avgPointsPerWord}
                   color={boardStats.avg_points_per_word_color}
                   //   explanationText={getZScoreText(
                   //     boardStats.eleven_point_words_z_score
                   //   )}
-                />
+                /> */}
                 {/* {longestWord ? (
                   <Metric
                     header="Longest Word"
@@ -125,7 +125,7 @@ const BoardStats = () => {
                 ) : (
                   <div></div>
                 )} */}
-              </Grid.Col>
+              {/* </Grid.Col> */}
             </Grid>
           </div>
         </>

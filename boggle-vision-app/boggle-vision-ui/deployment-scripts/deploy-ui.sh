@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Echo the `date` to the ~/date.txt file (this is a test)
-echo $(date) >>~/date.txt
-
 # Check if Docker is installed and install it if necessary
 if ! command -v docker &>/dev/null; then
     echo "Installing Docker..."

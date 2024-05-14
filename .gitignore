@@ -168,3 +168,7 @@ boggle-vision-app/boggle-vision-api/utils/allowed-words-trie.json
 boggle-vision-app/boggle-vision-api/data/word_to_definition.json
 boggle-vision-prototyping/utils/allowed-words-trie.json
 boggle-vision-prototyping/models/boggle_cnn.pth
+boggle-vision-diagrams.pptx
+~$boggle-vision-diagrams.pptx
+model.onnx
+
