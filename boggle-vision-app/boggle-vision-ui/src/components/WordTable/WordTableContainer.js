@@ -51,7 +51,7 @@ const WordTableContainer = (props) => {
       const apiBaseUrl =
         window.location.hostname === "localhost"
           ? "http://127.0.0.1:8000"
-          : "http://34.171.53.77:9781";
+          : "http://34.16.90.162:9781";
       const endpointURL = `${apiBaseUrl}/solve_board`;
 
       // Send the board data to the server.

@@ -32,7 +32,7 @@ jobs:
           tags: us-central1-docker.pkg.dev/boggle-vision/boggle-vision-webapp/boggle-vision-ui:latest
           provenance: false
           platforms: linux/amd64
-          build-args: REACT_APP_API_URL=http://34.171.53.77:9781 
+          build-args: REACT_APP_API_URL=http://34.16.90.162:9781 
           push: true
       - name: Install SSH client
         run: sudo apt-get install openssh-client
@@ -46,17 +46,17 @@ jobs:
           mkdir -p ~/.ssh
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H 34.171.53.77 >> ~/.ssh/known_hosts
+          ssh-keyscan -H 34.16.90.162 >> ~/.ssh/known_hosts
 
           # Create a temporary file to store the GCR JSON key
           echo "$GCR_JSON_KEY" > gcr_key.json
 
           # Copying the deployment script and the GCR JSON key to the server
-          scp -i ~/.ssh/id_rsa ./boggle-vision-app/boggle-vision-ui/deployment-scripts/deploy-ui.sh trevbook@34.171.53.77:/tmp/deploy-ui.sh
-          scp -i ~/.ssh/id_rsa ./gcr_key.json trevbook@34.171.53.77:/tmp/gcr_key.json
+          scp -i ~/.ssh/id_rsa ./boggle-vision-app/boggle-vision-ui/deployment-scripts/deploy-ui.sh trevbook@34.16.90.162:/tmp/deploy-ui.sh
+          scp -i ~/.ssh/id_rsa ./gcr_key.json trevbook@34.16.90.162:/tmp/gcr_key.json
 
           # Deleting the temporary GCR JSON key file
           rm gcr_key.json
 
           # Running the deployment script on the server
-          ssh -i ~/.ssh/id_rsa trevbook@34.171.53.77 'chmod +x /tmp/deploy-ui.sh && GCR_JSON_KEY=/tmp/gcr_key.json bash /tmp/deploy-ui.sh'
+          ssh -i ~/.ssh/id_rsa trevbook@34.16.90.162 'chmod +x /tmp/deploy-ui.sh && GCR_JSON_KEY=/tmp/gcr_key.json bash /tmp/deploy-ui.sh'
