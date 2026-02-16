@@ -1,0 +1,21 @@
+[project]
+name = "prototyping"
+version = "0.1.0"
+description = "ML training and data labeling for Boggle Vision board detection"
+requires-python = ">=3.12"
+dependencies = [
+    "ipykernel>=7.2.0",
+    "ipywidgets>=8.1.8",
+    "jupyter>=1.1.1",
+    "jupyterlab>=4.5.4",
+    "matplotlib>=3.10.8",
+    "nbformat>=5.10.4",
+    "numpy>=2.4.2",
+    "opencv-python-headless>=4.13.0.92",
+    "pandas>=3.0.0",
+    "pickleshare>=0.7.5",
+    "torch>=2.10.0",
+    "torchvision>=0.25.0",
+    "tqdm>=4.67.3",
+    "ultralytics>=8.4.14",
+]

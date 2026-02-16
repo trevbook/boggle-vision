@@ -1,0 +1,15 @@
+{
+  "editor.defaultFormatter": "biomejs.biome",
+  "editor.formatOnSave": true,
+  "[typescript]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "python.defaultInterpreterPath": "${workspaceFolder}/prototyping/.venv/bin/python",
+  "jupyter.notebookFileRoot": "${workspaceFolder}/prototyping"
+}

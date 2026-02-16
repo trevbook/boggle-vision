@@ -1,0 +1,25 @@
+node_modules/
+dist/
+coverage/
+.env
+.env.*
+!.env.example
+.DS_Store
+.sst/
+sst-env.d.ts
+.next/
+*.tsbuildinfo
+
+# Python (prototyping env)
+prototyping/.venv/
+prototyping/data/
+__pycache__/
+*.pyc
+
+# VSCode (user-specific settings tracked selectively)
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+
+# Ignore my miscellaneous files
+trevor-misc/

@@ -1,0 +1,19 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data (large files — keep out of git)
+data/raw/
+data/backgrounds/
+data/synthetic/
+
+# Model weights
+legacy/models/*.pth
+*.onnx
+
+# OS
+.DS_Store
