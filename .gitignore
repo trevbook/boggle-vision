@@ -23,3 +23,10 @@ __pycache__/
 
 # Ignore my miscellaneous files
 trevor-misc/
+
+# Ignore model weights
+*.pt
+
+# Ignore training runs
+runs/
+
