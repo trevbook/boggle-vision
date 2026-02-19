@@ -21,4 +21,5 @@ dependencies = [
     "onnxruntime>=1.20.0",
     "onnx>=1.20.1",
     "onnxslim>=0.1.85",
+    "onnxscript>=0.6.2",
 ]

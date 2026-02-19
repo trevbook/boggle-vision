@@ -26,6 +26,8 @@ trevor-misc/
 
 # Ignore model weights
 *.pt
+*.onnx
+*.onnx.data
 
 # Ignore training runs
 runs/
