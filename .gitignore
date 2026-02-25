@@ -22,7 +22,7 @@ __pycache__/
 !.vscode/extensions.json
 
 # Ignore my miscellaneous files
-trevor-misc/
+miscellaneous/
 
 # Ignore model weights
 *.pt
