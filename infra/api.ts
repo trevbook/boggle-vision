@@ -17,7 +17,7 @@ api.route("POST /analyze", {
     // Absolute path for sst dev (local files; deployed Lambda uses /opt/models baked into base image)
     MODELS_DIR: `${process.cwd()}/cv_pipeline/models`,
   },
-  memory: "2048 MB",
-  timeout: "60 seconds",
+  memory: "3008 MB",
+  timeout: "120 seconds",
   architecture: "arm64",
 });

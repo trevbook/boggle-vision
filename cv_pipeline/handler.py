@@ -5,12 +5,6 @@ import json
 import os
 import time
 
-import cv2
-import numpy as np
-
-from .analyze import analyze_board
-from .model import load_cnn_session
-
 # ── Lazy model loading (runs once per container on first real request) ─────
 _yolo_model = None
 _cnn_session = None
@@ -46,6 +40,8 @@ def _get_models():
     if _yolo_model is None:
         from ultralytics import YOLO
 
+        from .model import load_cnn_session
+
         models_dir = _resolve_models_dir()
         _yolo_model = YOLO(os.path.join(models_dir, "yolov8s-seg.pt"))
         _cnn_session = load_cnn_session(os.path.join(models_dir, "boggle_cnn_v2.onnx"))
@@ -80,6 +76,9 @@ def handler(event, context):
     if not image_b64:
         return _response(400, {"error": "No image provided"})
 
+    import cv2
+    import numpy as np
+
     image_bytes = base64.b64decode(image_b64)
     nparr = np.frombuffer(image_bytes, np.uint8)
     image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
@@ -87,6 +86,8 @@ def handler(event, context):
         return _response(400, {"error": "Failed to decode image"})
 
     # Run pipeline
+    from .analyze import analyze_board
+
     yolo_model, cnn_session = _get_models()
     t0 = time.time()
     result = analyze_board(image, yolo_model, cnn_session)
