@@ -44,7 +44,18 @@ sst-dev:
 sst-set-secret SECRET VALUE:
     bunx sst secret set {{SECRET}} {{VALUE}}
 
-# Deploy with SST
+# Copy models into the local workspace (for sst dev / direct uv run)
+copy-models:
+    mkdir -p cv_pipeline/models
+    cp prototyping/yolov8s-seg.pt cv_pipeline/models/
+    cp prototyping/legacy/models/boggle_cnn_v2.onnx cv_pipeline/models/
+    cp prototyping/legacy/models/boggle_cnn_v2.onnx.data cv_pipeline/models/
+
+# Build and push the Python Lambda base image to ECR
+build-base-image:
+    ./infra/docker/build-base-image.sh
+
+# Deploy with SST (models are uploaded to S3 as part of the deploy)
 sst-deploy:
     bunx sst deploy
 

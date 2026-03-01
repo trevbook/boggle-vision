@@ -1,0 +1,19 @@
+[project]
+name = "boggle-vision"
+version = "0.1.0"
+description = "Boggle Vision — Python packages"
+dependencies = []
+requires-python = "==3.12.*"
+
+[tool.uv.workspace]
+members = ["cv_pipeline"]
+
+[tool.uv.sources]
+sst = { git = "https://github.com/sst/sst.git", subdirectory = "sdk/python", branch = "dev" }
+torch = { index = "pytorch-cpu" }
+torchvision = { index = "pytorch-cpu" }
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true

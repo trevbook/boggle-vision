@@ -6,7 +6,7 @@ This file provides context for Claude Code when working in this repository.
 
 Boggle Vision is a computer-vision powered Boggle solver. Users photograph a physical Boggle board, the app detects the board and recognizes each letter tile, solves for all valid words, and displays statistics (total points, word rarity, board percentile rankings).
 
-This is a v2 rebuild of a 2023 project. The original used Python (FastAPI + OpenCV + PyTorch CNN) with a React/Redux/Mantine frontend on GCP. This version is a TypeScript-first monorepo with Next.js, shadcn/ui, and serverless AWS (SST v3). The original source lives at `/Users/thubbard/Documents/personal/programming/boggle-vision-v0` for reference.
+This is a v2 rebuild of a 2023 project. The original used Python (FastAPI + OpenCV + PyTorch CNN) with a React/Redux/Mantine frontend on GCP. This version uses a Next.js + shadcn/ui frontend, a Python CV pipeline (Ultralytics YOLO + OpenCV + ONNX Runtime) deployed as a containerized AWS Lambda, and a pure TypeScript board solver — all managed with SST v3. The original source lives at `/Users/thubbard/Documents/personal/programming/boggle-vision-v0` for reference.
 
 Key domain concepts:
 - **Board detection**: Segmenting a Boggle board from a photo and extracting individual tile images.
@@ -18,9 +18,11 @@ Key domain concepts:
 ## Repository Structure
 
 - `apps/www/` — Next.js + shadcn/ui web application.
-- `packages/` — Internal shared packages (bun workspace).
+- `packages/` — Internal TS packages (bun workspace).
+  - `solver/` — Pure TypeScript board solver (trie + DFS).
+- `cv_pipeline/` — Python CV pipeline deployed as a containerized Lambda. 8-stage pipeline: YOLO segmentation, OpenCV image processing, ONNX Runtime CNN classifier. Has its own `Dockerfile` and `pyproject.toml` (uv workspace member).
 - `infra/` — SST v3 infrastructure (AWS deployment).
-- `prototyping/` — Python environment for ML training, data labeling, and experimentation (uv, Jupyter, Ultralytics). Not part of the bun workspace.
+- `prototyping/` — Python environment for ML training, data labeling, and experimentation (uv, Jupyter, Ultralytics). Standalone uv project, NOT a workspace member.
   - `legacy/` — Quarantined v0 code (OpenCV board detection, CNN) used for bootstrapping labels.
   - `data/` — Raw board photos, YOLO-seg labels, background textures, synthetic composites.
   - `notebooks/` — Jupyter notebooks for the training pipeline.
