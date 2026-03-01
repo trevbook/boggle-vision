@@ -1,0 +1,16 @@
+export const LOADING_QUIPS = [
+  "Shaking the board...",
+  "Qu is one tile, we promise...",
+  "Looking for \u2018syzygy\u2019...",
+  "Counting every last \u2018teen\u2019...",
+  "No proper nouns allowed...",
+  "Checking under the couch for missing dice...",
+  "Debating whether \u2018za\u2019 is a real word...",
+  "Teaching the AI to read upside down...",
+  "Rearranging letters furiously...",
+  "Finding words you definitely missed...",
+  "Consulting the dictionary elders...",
+  "Rolling virtual dice...",
+  "Alphabetizing aggressively...",
+  "It\u2019s not cheating if a robot does it...",
+];

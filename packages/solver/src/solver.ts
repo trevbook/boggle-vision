@@ -7,8 +7,8 @@
  * Ported from boggle-vision-v0/utils/board_solving.py.
  */
 
-import { scoreWord } from "./scoring.js";
-import type { TrieNode } from "./trie.js";
+import { scoreWord } from "./scoring";
+import type { TrieNode } from "./trie";
 
 /** A word found on the board with its scoring information. */
 export interface SolvedWord {

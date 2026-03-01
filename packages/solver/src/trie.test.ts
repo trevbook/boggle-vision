@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { _wordToTileKeys, buildTrie, lookupTileKeys, lookupWord } from "./trie.js";
+import { _wordToTileKeys, buildTrie, lookupTileKeys, lookupWord } from "./trie";
 
 const DICT_PATH = resolve(import.meta.dir, "../data/enable1.txt");
 const wordList = readFileSync(DICT_PATH, "utf-8");

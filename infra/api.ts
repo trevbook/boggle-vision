@@ -20,4 +20,5 @@ api.route("POST /analyze", {
   memory: "3008 MB",
   timeout: "120 seconds",
   architecture: "arm64",
+  dev: false,
 });

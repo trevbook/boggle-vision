@@ -1,6 +1,6 @@
-export { scoreWord } from "./scoring.js";
-export type { SolvedWord, SolveResult } from "./solver.js";
+export { scoreWord } from "./scoring";
+export type { SolvedWord, SolveResult } from "./solver";
 
-export { solveBoard } from "./solver.js";
-export type { TrieNode } from "./trie.js";
-export { buildTrie, lookupTileKeys, lookupWord } from "./trie.js";
+export { solveBoard } from "./solver";
+export type { TrieNode } from "./trie";
+export { buildTrie, lookupTileKeys, lookupWord } from "./trie";

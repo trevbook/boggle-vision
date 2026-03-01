@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { scoreWord } from "./scoring.js";
+import { scoreWord } from "./scoring";
 
 describe("scoreWord", () => {
   test("words shorter than 4 letters score 0", () => {

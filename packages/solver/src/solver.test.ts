@@ -1,9 +1,9 @@
 import { beforeAll, describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { solveBoard } from "./solver.js";
-import type { TrieNode } from "./trie.js";
-import { buildTrie } from "./trie.js";
+import { solveBoard } from "./solver";
+import type { TrieNode } from "./trie";
+import { buildTrie } from "./trie";
 
 const DICT_PATH = resolve(import.meta.dir, "../data/enable1.txt");
 
