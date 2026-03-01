@@ -51,11 +51,11 @@ copy-models:
     cp prototyping/legacy/models/boggle_cnn_v2.onnx cv_pipeline/models/
     cp prototyping/legacy/models/boggle_cnn_v2.onnx.data cv_pipeline/models/
 
-# Build and push the Python Lambda base image to ECR
+# Build and push the Python Lambda base image to ECR (includes model weights)
 build-base-image:
     ./infra/docker/build-base-image.sh
 
-# Deploy with SST (models are uploaded to S3 as part of the deploy)
+# Deploy with SST (models are baked into the base image — rebuild if models change)
 sst-deploy:
     bunx sst deploy
 

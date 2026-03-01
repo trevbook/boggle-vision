@@ -70,7 +70,19 @@ aws ecr get-login-password --region "${AWS_REGION}" | \
     docker login --username AWS --password-stdin \
     "${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
 
-# ── 4. Build (x86_64 to match Lambda architecture) ───────────────────────────
+# ── 4. Stage model weights into build context ────────────────────────────────
+echo ""
+echo "Staging model weights..."
+
+MODELS_BUILD_DIR="${BUILD_DIR}/models"
+mkdir -p "${MODELS_BUILD_DIR}"
+cp "${MONOREPO_ROOT}/prototyping/yolov8s-seg.pt" "${MODELS_BUILD_DIR}/"
+cp "${MONOREPO_ROOT}/prototyping/legacy/models/boggle_cnn_v2.onnx" "${MODELS_BUILD_DIR}/"
+cp "${MONOREPO_ROOT}/prototyping/legacy/models/boggle_cnn_v2.onnx.data" "${MODELS_BUILD_DIR}/"
+
+echo "  Staged 3 model files into ${MODELS_BUILD_DIR}"
+
+# ── 5. Build (arm64 Graviton to match Lambda architecture) ───────────────────
 echo ""
 echo "Building base image..."
 cd "${BUILD_DIR}"
@@ -78,23 +90,24 @@ cd "${BUILD_DIR}"
 TIMESTAMP=$(date +%Y%m%d-%H%M%S)
 
 docker build \
-    --platform linux/amd64 \
+    --platform linux/arm64 \
     --build-arg PYTHON_VERSION="${PYTHON_VERSION}" \
     -t "${REPOSITORY_NAME}:${IMAGE_TAG}" \
     -t "${ECR_URI}:${IMAGE_TAG}" \
     -t "${ECR_URI}:${TIMESTAMP}" \
     .
 
-# ── 5. Push to ECR (latest + timestamped backup) ─────────────────────────────
+# ── 6. Push to ECR (latest + timestamped backup) ─────────────────────────────
 echo ""
 echo "Pushing to ECR..."
 docker push "${ECR_URI}:${IMAGE_TAG}"
 docker push "${ECR_URI}:${TIMESTAMP}"
 
-# ── 6. Cleanup ────────────────────────────────────────────────────────────────
+# ── 7. Cleanup ────────────────────────────────────────────────────────────────
 echo ""
 echo "Cleaning up..."
 rm -f "${BUILD_DIR}/requirements.txt"
+rm -rf "${BUILD_DIR}/models"
 
 echo ""
 echo "============================================="

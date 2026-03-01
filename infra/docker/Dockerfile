@@ -1,10 +1,10 @@
 # Boggle Vision — Python Lambda Base Image
 #
-# Contains all system and Python dependencies for the cv_pipeline Lambda.
-# The consumer Dockerfile (cv_pipeline/Dockerfile) extends this image and
-# only adds application code, keeping deploys fast.
+# Contains all system deps, Python dependencies, and model weights for the
+# cv_pipeline Lambda. The consumer Dockerfile (cv_pipeline/Dockerfile) extends
+# this image and only adds application code, keeping deploys fast.
 #
-# Rebuild when Python dependencies change:
+# Rebuild when Python dependencies or model weights change:
 #   just build-base-image
 
 ARG PYTHON_VERSION=3.12
@@ -27,3 +27,7 @@ RUN uv pip install -r requirements.txt --target ${LAMBDA_TASK_ROOT} --system \
     --index-strategy unsafe-best-match
 
 RUN rm -f ${LAMBDA_TASK_ROOT}/requirements.txt
+
+# Bake model weights into the image (eliminates S3 download on cold start).
+# Models are staged into the build context by build-base-image.sh.
+COPY models/ /opt/models/

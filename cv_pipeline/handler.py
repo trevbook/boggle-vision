@@ -16,35 +16,26 @@ _yolo_model = None
 _cnn_session = None
 
 
-_MODEL_FILES = ["yolov8s-seg.pt", "boggle_cnn_v2.onnx", "boggle_cnn_v2.onnx.data"]
+# Path where models are baked into the base Docker image
+_BAKED_MODELS_DIR = "/opt/models"
 
 
 def _resolve_models_dir() -> str:
     """Return the local directory containing model files.
 
-    In deployed Lambda, models are downloaded from S3 to /tmp/models on first
-    call.  In sst dev mode, the MODELS_DIR env var points at local files.
+    Resolution order:
+    1. MODELS_DIR env var — sst dev mode (points at local files on dev machine).
+    2. /opt/models — deployed Lambda (baked into the Docker base image).
+    3. ./models relative to this file — direct ``uv run`` fallback.
     """
     # sst dev — local files (path only exists on the developer's machine)
     models_dir_env = os.environ.get("MODELS_DIR")
     if models_dir_env and os.path.isdir(models_dir_env):
         return models_dir_env
 
-    # Deployed Lambda — download from S3 into /tmp/models
-    if "MODELS_BUCKET" in os.environ:
-        models_dir = "/tmp/models"
-        marker = os.path.join(models_dir, ".ready")
-        if not os.path.exists(marker):
-            import boto3
-
-            os.makedirs(models_dir, exist_ok=True)
-            s3 = boto3.client("s3")
-            bucket = os.environ["MODELS_BUCKET"]
-            for key in _MODEL_FILES:
-                s3.download_file(bucket, key, os.path.join(models_dir, key))
-            # Marker so subsequent warm invocations skip the download
-            open(marker, "w").close()
-        return models_dir
+    # Deployed Lambda — models baked into the base image
+    if os.path.isdir(_BAKED_MODELS_DIR):
+        return _BAKED_MODELS_DIR
 
     # Fallback — resolve relative to this file (direct uv run)
     return os.path.join(os.path.dirname(__file__), "models")
