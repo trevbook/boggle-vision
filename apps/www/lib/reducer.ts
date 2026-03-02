@@ -1,4 +1,4 @@
-import type { AppAction, AppState } from "./types";
+import type { AppAction, AppState, BoardDisplayMode } from "./types";
 
 export const initialState: AppState = {
   screen: "capture",
@@ -9,7 +9,8 @@ export const initialState: AppState = {
   selectedWordIndex: null,
   isEditMode: false,
   editedLetters: null,
-  letterOverlayVisible: true,
+  boardImage: null,
+  boardDisplayMode: "photo",
   sortBy: "length",
   minPointsFilter: 1,
 };
@@ -28,6 +29,8 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         ...state,
         screen: "results",
         analysis: action.analysis,
+        boardImage: action.boardImage,
+        boardDisplayMode: action.boardImage ? "photo" : "letters",
         solution: action.solution,
         timing: action.timing,
       };
@@ -42,8 +45,15 @@ export function appReducer(state: AppState, action: AppAction): AppState {
     case "DESELECT_WORD":
       return { ...state, selectedWordIndex: null };
 
-    case "TOGGLE_OVERLAY":
-      return { ...state, letterOverlayVisible: !state.letterOverlayVisible };
+    case "CYCLE_BOARD_DISPLAY": {
+      const hasBoardImage = state.boardImage !== null;
+      const modes: BoardDisplayMode[] = hasBoardImage
+        ? ["photo", "letters", "photo-only"]
+        : ["letters", "photo-only"];
+      const currentIndex = modes.indexOf(state.boardDisplayMode);
+      const nextIndex = (currentIndex + 1) % modes.length;
+      return { ...state, boardDisplayMode: modes[nextIndex] };
+    }
 
     case "ENTER_EDIT":
       return {
@@ -81,6 +91,8 @@ export function appReducer(state: AppState, action: AppAction): AppState {
       return {
         ...initialState,
         screen: "results",
+        boardImage: null,
+        boardDisplayMode: "letters",
         analysis: {
           letters: action.board.letters,
           gridSize: action.board.gridSize,

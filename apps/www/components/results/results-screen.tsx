@@ -6,6 +6,7 @@ import { useSolver } from "@/hooks/use-solver";
 import type {
   AnalysisData,
   AppAction,
+  BoardDisplayMode,
   SolvedWord,
   SolveResult,
   SortOption,
@@ -26,7 +27,8 @@ interface ResultsScreenProps {
   editedLetters: TileLabel[] | null;
   selectedWordIndex: number | null;
   isEditMode: boolean;
-  letterOverlayVisible: boolean;
+  boardImage: string | null;
+  boardDisplayMode: BoardDisplayMode;
   sortBy: SortOption;
   minPointsFilter: number;
   dispatch: React.Dispatch<AppAction>;
@@ -52,7 +54,8 @@ export function ResultsScreen({
   editedLetters,
   selectedWordIndex,
   isEditMode,
-  letterOverlayVisible,
+  boardImage,
+  boardDisplayMode,
   sortBy,
   minPointsFilter,
   dispatch,
@@ -125,26 +128,51 @@ export function ResultsScreen({
   return (
     <div className="flex flex-col h-dvh">
       {/* Board */}
-      <BoardDisplay
-        letters={activeLetters}
-        gridSize={analysis.gridSize}
-        confidences={analysis.confidences}
-        selectedWord={selectedWord}
-        letterOverlayVisible={letterOverlayVisible}
-        isEditMode={isEditMode}
-        onTileTap={handleTileTap}
-      />
+      {(() => {
+        const effectiveMode = isEditMode ? "letters" : boardDisplayMode;
+        const showPhoto =
+          (effectiveMode === "photo" || effectiveMode === "photo-only") && boardImage !== null;
+        const showLetters = effectiveMode === "photo" || effectiveMode === "letters";
+        const boardImageSrc = boardImage ? `data:image/jpeg;base64,${boardImage}` : null;
 
-      {/* Toggle overlay button */}
-      <div className="flex justify-center py-1">
-        <button
-          type="button"
-          onClick={() => dispatch({ type: "TOGGLE_OVERLAY" })}
-          className="text-xs text-muted-foreground underline underline-offset-2"
-        >
-          {letterOverlayVisible ? "Hide letters" : "Show letters"}
-        </button>
-      </div>
+        const toggleLabel =
+          effectiveMode === "photo"
+            ? "Show grid"
+            : effectiveMode === "letters"
+              ? "Hide letters"
+              : boardImage
+                ? "Show photo"
+                : "Show letters";
+
+        return (
+          <>
+            <BoardDisplay
+              letters={activeLetters}
+              gridSize={analysis.gridSize}
+              confidences={analysis.confidences}
+              selectedWord={selectedWord}
+              showLetters={showLetters}
+              showPhoto={showPhoto}
+              boardImageSrc={boardImageSrc}
+              isEditMode={isEditMode}
+              onTileTap={handleTileTap}
+            />
+
+            {/* Toggle display mode button */}
+            {!isEditMode && (
+              <div className="flex justify-center py-1">
+                <button
+                  type="button"
+                  onClick={() => dispatch({ type: "CYCLE_BOARD_DISPLAY" })}
+                  className="text-xs text-muted-foreground underline underline-offset-2"
+                >
+                  {toggleLabel}
+                </button>
+              </div>
+            )}
+          </>
+        );
+      })()}
 
       {/* Stats */}
       <StatsBar totalPoints={filteredTotalPoints} wordCount={displayedWords.length} />

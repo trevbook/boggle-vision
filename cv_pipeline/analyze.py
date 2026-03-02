@@ -25,6 +25,7 @@ def analyze_board(image, yolo_model, cnn_session):
         det_conf      float        — YOLO detection confidence
         quad_method   str
         warp_size     int          — side length of the warped image (px)
+        warped_img    np.ndarray   — BGR uint8 top-down board image
 
     On failure, returns {"error": <message>} with no other keys guaranteed.
     """
@@ -70,4 +71,5 @@ def analyze_board(image, yolo_model, cnn_session):
         "det_conf": det_conf,
         "quad_method": quad_method,
         "warp_size": warp_sz,
+        "warped_img": warped_img,
     }

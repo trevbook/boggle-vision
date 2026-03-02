@@ -40,6 +40,7 @@ export default function Home() {
         dispatch({
           type: "PROCESSING_COMPLETE",
           analysis: resp.analysis,
+          boardImage: resp.boardImage ?? null,
           solution: result,
           timing: { pipelineMs: resp.timing.pipelineMs, solverMs },
         });
@@ -102,7 +103,8 @@ export default function Home() {
           editedLetters={state.editedLetters}
           selectedWordIndex={state.selectedWordIndex}
           isEditMode={state.isEditMode}
-          letterOverlayVisible={state.letterOverlayVisible}
+          boardImage={state.boardImage}
+          boardDisplayMode={state.boardDisplayMode}
           sortBy={state.sortBy}
           minPointsFilter={state.minPointsFilter}
           dispatch={(action) => {

@@ -10,3 +10,5 @@ YOLO_IMGSZ = 640
 TARGET_TILE_SIZE = 100
 GRID_INSET_RATIO = 0.10
 WARP_PAD_PCT = 0.07  # how far outside the quad corners to include in the warp
+WARPED_IMG_MAX_SIZE = 480  # max side-length (px) for the warped board JPEG returned to frontend
+WARPED_IMG_JPEG_QUALITY = 80

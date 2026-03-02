@@ -93,8 +93,27 @@ def handler(event, context):
     result = analyze_board(image, yolo_model, cnn_session)
     pipeline_ms = (time.time() - t0) * 1000
 
+    # Extract warped image before error check (may not exist on failure)
+    warped = result.pop("warped_img", None)
+
     if "error" in result:
         return _response(422, {"success": False, "error": result["error"]})
+
+    # Encode warped board image as JPEG for the frontend
+    from .constants import WARPED_IMG_JPEG_QUALITY, WARPED_IMG_MAX_SIZE
+
+    board_image_b64 = None
+    if warped is not None:
+        h, w = warped.shape[:2]
+        if max(h, w) > WARPED_IMG_MAX_SIZE:
+            scale = WARPED_IMG_MAX_SIZE / max(h, w)
+            warped = cv2.resize(
+                warped, (int(w * scale), int(h * scale)), interpolation=cv2.INTER_AREA
+            )
+        _, buf = cv2.imencode(
+            ".jpg", warped, [cv2.IMWRITE_JPEG_QUALITY, WARPED_IMG_JPEG_QUALITY]
+        )
+        board_image_b64 = base64.b64encode(buf.tobytes()).decode("ascii")
 
     return _response(200, {
         "success": True,
@@ -106,5 +125,6 @@ def handler(event, context):
             "minConfidence": result["min_confidence"],
             "detectionConfidence": result["det_conf"],
         },
+        "boardImage": board_image_b64,
         "timing": {"pipelineMs": round(pipeline_ms)},
     })

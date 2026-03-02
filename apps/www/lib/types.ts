@@ -39,6 +39,7 @@ export type TileLabel =
 
 export type AppScreen = "capture" | "processing" | "results";
 export type SortOption = "length" | "points" | "alpha";
+export type BoardDisplayMode = "photo" | "letters" | "photo-only";
 
 export interface AnalysisData {
   letters: TileLabel[];
@@ -57,6 +58,7 @@ export interface TimingData {
 export interface AnalyzeResponse {
   success: true;
   analysis: AnalysisData;
+  boardImage?: string;
   timing: { pipelineMs: number };
 }
 
@@ -75,6 +77,7 @@ export type AppAction =
   | {
       type: "PROCESSING_COMPLETE";
       analysis: AnalysisData;
+      boardImage: string | null;
       solution: SolveResult;
       timing: TimingData;
     }
@@ -82,7 +85,7 @@ export type AppAction =
   | { type: "CANCEL_PROCESSING" }
   | { type: "SELECT_WORD"; index: number }
   | { type: "DESELECT_WORD" }
-  | { type: "TOGGLE_OVERLAY" }
+  | { type: "CYCLE_BOARD_DISPLAY" }
   | { type: "ENTER_EDIT" }
   | { type: "EDIT_TILE"; tileIndex: number; label: TileLabel }
   | { type: "EXIT_EDIT"; solution: SolveResult }
@@ -100,7 +103,8 @@ export interface AppState {
   selectedWordIndex: number | null;
   isEditMode: boolean;
   editedLetters: TileLabel[] | null;
-  letterOverlayVisible: boolean;
+  boardImage: string | null;
+  boardDisplayMode: BoardDisplayMode;
   sortBy: SortOption;
   minPointsFilter: number;
 }
